@@ -268,6 +268,40 @@ class Maze():
             self.hand_generation()
             with open("{:s}.txt".format(filename), "w") as mazeModel :
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
+
+    def build_maze_from_text(filename):
+        """
+        Build a Maze object from a text file
+        The two first lines of the text file are the width and the height of the labyrinth
+        The following lines describes the corridors of the maze using the symbols:
+        - "+" for the corners of the squares
+        - "-" and "|" for the walls separating adjacent squares
+        - " " for the squares and the passages between them
+
+        :param filename: (str) a valid name of a text file
+        :return: A maze built from the text file
+        :returntype: Maze
+        :UC: None
+        """
+        try:
+            with open(filename, "r") as instream:
+                lines = instream.readlines()
+        except FileNotFoundError:
+            print("build_maze_from_text: The file does not exists !")
+            raise FileNotFoundError
+        
+        # We remove all '\n' in the lines
+        for i in range(lines):
+            lines[i].rstrip("\n") 
+
+        width = lines.pop(0)
+        height = lines.pop(0)
+
+        maze = Maze(width, height)
+        for i, line in enumerate(lines):
+            pass
+
+
         
 if __name__ == '__main__':
     import doctest
