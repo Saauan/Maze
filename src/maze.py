@@ -240,49 +240,34 @@ class Maze():
             #        print("You didn't enter a right answer, unlucky you...")
             except:
                 raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
-            
 
-M = Maze(8,5)
-M.random_generation()
-T = M.__str__().split("\n")
-ListeLaby = []
-LineLaby = []
-for x in T[1:len(T)-1]:
-    for elt in x[1:len(x)-1]:
-        if elt == " ":
-            LineLaby += [0]
-        else:
-            LineLaby += [1]
-    ListeLaby.append(LineLaby)
-    LineLaby = []
-ListeLaby[2*(M.get_height() - 1)][2*M.get_width() - 2] = 2
  
-def text_representation(self, filename, choice):
-    """
-    Create a new text file containing maze's informations.
-    
-    :param: self (Maze) - a fresh new maze
-                filename (str) - the name of the file which will contain the maze self
-                choice (int) - 0 if self has to be written as entered,
-                                    1 if self is new and has to be randomly generated before
-                                    2 if self is new and has to be created by the user
-    :return: None
-    :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
-    :CU: self has to be a new, not modified if choice == 1 or choice == 2
-            If already modified, CreationError raised.
-    """
-    assert choice in {0,1,2}, "Your choice's number isn't a valid one."
-    if choice == 0:
-        with open("{:s}.txt".format(filename), "w") as mazeModel :
-            mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
-    elif choice == 1:
-        self.random_generation()
-        with open("{:s}.txt".format(filename), "w") as mazeModel :
-            mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
-    elif choice == 2:
-        self.hand_generation()
-        with open("{:s}.txt".format(filename), "w") as mazeModel :
-            mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
+    def text_representation(self, filename, choice):
+        """
+        Create a new text file containing maze's informations.
+        
+        :param: self (Maze) - a fresh new maze
+                    filename (str) - the name of the file which will contain the maze self
+                    choice (int) - 0 if self has to be written as entered,
+                                   1 if self is new and has to be randomly generated before
+                                   2 if self is new and has to be created by the user
+        :return: None
+        :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
+        :CU: self has to be a new, not modified if choice == 1 or choice == 2
+             If already modified, CreationError raised.
+        """
+        assert choice in {0,1,2}, "Your choice's number isn't a valid one."
+        if choice == 0:
+            with open("{:s}.txt".format(filename), "w") as mazeModel :
+                mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
+        elif choice == 1:
+            self.random_generation()
+            with open("{:s}.txt".format(filename), "w") as mazeModel :
+                mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
+        elif choice == 2:
+            self.hand_generation()
+            with open("{:s}.txt".format(filename), "w") as mazeModel :
+                mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
         
 if __name__ == '__main__':
     import doctest
