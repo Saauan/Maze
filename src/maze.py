@@ -241,14 +241,13 @@ class Maze():
             except:
                 raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
 
- 
     def text_representation(self, filename, choice):
         """
         Create a new text file containing maze's informations.
         
         :param: self (Maze) - a fresh new maze
                     filename (str) - the name of the file which will contain the maze self
-                    choice (int) - 0 if self has to be written as entered,
+                    choice (int) - 0 if self is an already built maze,
                                    1 if self is new and has to be randomly generated before
                                    2 if self is new and has to be created by the user
         :return: None
@@ -269,10 +268,11 @@ class Maze():
             with open("{:s}.txt".format(filename), "w") as mazeModel :
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
 
+    @staticmethod
     def build_maze_from_text(filename):
         """
         Build a Maze object from a text file
-        The two first lines of the text file are the width and the height of the labyrinth
+        The two first lines of the text file are the width and the height of the labyrinth (integers)
         The following lines describes the corridors of the maze using the symbols:
         - "+" for the corners of the squares
         - "-" and "|" for the walls separating adjacent squares
@@ -285,24 +285,42 @@ class Maze():
         """
         try:
             with open(filename, "r") as instream:
-                lines = instream.readlines()
+                lines = []
+                for line in instream.readlines():
+                    lines.append(line.rstrip("\n"))
         except FileNotFoundError:
             print("build_maze_from_text: The file does not exists !")
             raise FileNotFoundError
+
+        try:
+            width = int(lines.pop(0))
+            height = int(lines.pop(0))
+        except TypeError:
+            print("build_maze_from_text: The width and height are not written correctly")
+            raise TypeError
         
-        # We remove all '\n' in the lines
-        for i in range(lines):
-            lines[i].rstrip("\n") 
-
-        width = lines.pop(0)
-        height = lines.pop(0)
-
         maze = Maze(width, height)
         for i, line in enumerate(lines):
-            pass
+            for j, c in enumerate(line):
+                if c == " ":
+                    if i % 2 == 0: # We are on the "+" line.
+                        x = j // 2
+                        y = i // 2
+                        if i <= height - 1: # We are not on the bottom edge.
+                            maze.get_cell(x,y).square_modification("Top", False)
+                        if i >= 2: # We are not on the top squares.
+                            maze.get_cell(x, y-1).square_modification("Bottom", False)
+
+                    elif j % 2 == 0: # We are on the "|" line and not inside a square.
+                        x = j // 2
+                        y = i // 2
+                        if j <= width -1: # We are not on the far right edge.
+                            maze.get_cell(x, y).square_modification("Left", False)
+                        if j >= 2 : # We are not on the far left squares.
+                            maze.get_cell(x-1, y).square_modification("Right", False)
+        return maze
 
 
-        
 if __name__ == '__main__':
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=True)
