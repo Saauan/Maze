@@ -12,23 +12,17 @@ This script is used to display a Graphical interface of the Maze
 
 Uses: 
     - maze.py
-    - square.py
+        - square.py (Dependancy)
     - tkinter
 """
-
-from maze import CreationError, Maze
-from square import Square
-from tkinter import * 
-
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 from tkinter import *
+from maze import *
 
 CAN_WIDTH = 800
-CAN_HEIGHT = 600
+CAN_HEIGHT = 800
 BG_COLOR = 'black'
 GRID_COLOR = 'yellow'
+
 
 def draw_circle(canvas, event):
     ray = 5
@@ -39,7 +33,7 @@ def draw_circle(canvas, event):
     canvas.update()
     
 def draw_grid(canvas, width, height):
-    DX = CAN_WIDTH // width
+    DX = CAN_WIDTH // width # Width of a square
     DY = CAN_HEIGHT // height
     for y in range(height):
         for x in range(width):
@@ -54,6 +48,15 @@ def draw_grid(canvas, width, height):
     canvas.create_line(width * DX - 1, 0,  width * DX - 1, height * DY - 1,
                        fill=GRID_COLOR, width=1)
     
+def random_word(filename):
+    """
+    returns a random word taken from a file `filename`
+
+    :param filename: (str) the words have to be separated by backspaces
+    :return: (str) a word
+    """
+    pass
+
 def remove_wall(canvas, x, y, side, width, height):
     """
     removes a wall from a side of a cell on the canvas
@@ -65,8 +68,8 @@ def remove_wall(canvas, x, y, side, width, height):
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
-    DX = CAN_WIDTH // width
-    DY = CAN_HEIGHT // height
+    DX = CAN_WIDTH // width # This is the width of a square
+    DY = CAN_HEIGHT // height # This is the height of a square
     if side == "Left":
         canvas.create_line(x * DX, y * DY, (x) * DX, (y + 1) * DY, fill=BG_COLOR, width=1)
     if side == "Top":
@@ -92,8 +95,7 @@ def setup_wall(canvas, maze):
             if not cell.has_topRampart():
                 remove_wall(canvas, x, y, "Top", width, height)
 
-
-def set_circle(canvas, x, y):
+def set_circle(canvas, width, height, x, y):
     """
     draws a circle on the cell of coordinates (x,y)
 
@@ -103,9 +105,13 @@ def set_circle(canvas, x, y):
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
-    pass
-
-def set_cell_as_bad(canvas, x, y):
+    DX = CAN_WIDTH // width 
+    DY = CAN_HEIGHT // height 
+    canvas.create_oval(x*DX*1.02, y*DY*0.98,
+                       (x+1)*DX*0.98, (y-1)*DY*1.02,
+                       fill = "red")
+    
+def set_bad_cell(canvas, width, height, x, y):
     """
     TODO: change the name of the function
 
@@ -117,22 +123,27 @@ def set_cell_as_bad(canvas, x, y):
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
+    DX = CAN_WIDTH // width # This is the width of a square
+    DY = CAN_HEIGHT // height # This is the height of a square
+    canvas.create_rectangle(x*DX+1, y*DY-1,
+                         (x+1)*DX-1, (y+1)*DY+1,
+                         fill = "gray")
 
-
-def main():
-    maze1 = Maze().build_maze_from_text("Test/TestMaze/maze_20_20_0.txt") #DEBUG
-    maze = Maze(20,20)
-    maze.random_generation()
-    win = Tk()
-    win.title('Hazmat Byliner')
+def main(maze):
+    maze_width = maze.get_width()
+    maze_height = maze.get_height()
+    win = Tk() # Creates a window object
+    win.title('Hazmat Byliner') # DEBUG will be random_word()
     can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
     can.bind('<Button-1>',
              lambda event: draw_circle(can, event))
-    can.pack()
-    draw_grid(can, 20, 20)
-    remove_wall(can, 3, 3, "Top", 20, 20) # Test
-    setup_wall(can, maze1)
+    can.pack() # Allows the canvas to be handled as grid and columns
+    draw_grid(can, maze_width, maze_height) 
+    setup_wall(can, maze)
     win.mainloop()
     
 if __name__ == '__main__':
-    main()
+    # We shall parse command line arguments here
+    # HERE We shall build a maze according to some arguments we have passed in the command line
+    maze = Maze().build_maze_from_text("Test/TestMaze/maze_20_20_0.txt") #DEBUG
+    main(maze)
