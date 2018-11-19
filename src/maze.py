@@ -306,17 +306,17 @@ class Maze():
                     if i % 2 == 0: # We are on the "+" line.
                         x = j // 2
                         y = i // 2
-                        if i <= height - 1: # We are not on the bottom edge.
+                        if y <= height - 1: # We are not on the bottom edge.
                             maze.get_cell(x,y).square_modification("Top", False)
-                        if i >= 2: # We are not on the top squares.
+                        if y >= 2: # We are not on the top squares.
                             maze.get_cell(x, y-1).square_modification("Bottom", False)
 
                     elif j % 2 == 0: # We are on the "|" line and not inside a square.
                         x = j // 2
                         y = i // 2
-                        if j <= width -1: # We are not on the far right edge.
+                        if x <= width -1: # We are not on the far right edge.
                             maze.get_cell(x, y).square_modification("Left", False)
-                        if j >= 2 : # We are not on the far left squares.
+                        if x >= 2 : # We are not on the far left squares.
                             maze.get_cell(x-1, y).square_modification("Right", False)
         return maze
 
