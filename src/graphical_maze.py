@@ -17,6 +17,7 @@ Uses:
 """
 from tkinter import *
 from maze import *
+from random import choice
 
 CAN_WIDTH = 800
 CAN_HEIGHT = 800
@@ -55,7 +56,10 @@ def random_word(filename):
     :param filename: (str) the words have to be separated by backspaces
     :return: (str) a word
     """
-    pass
+    with open(filename, 'r') as stream:
+        lines = stream.readlines()
+        
+    return choice(lines).rstrip('\n')
 
 def remove_wall(canvas, x, y, side, width, height):
     """
@@ -133,7 +137,7 @@ def main(maze):
     maze_width = maze.get_width()
     maze_height = maze.get_height()
     win = Tk() # Creates a window object
-    win.title('Hazmat Byliner') # DEBUG will be random_word()
+    win.title(random_word('ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
     can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
     can.bind('<Button-1>',
              lambda event: draw_circle(can, event))
