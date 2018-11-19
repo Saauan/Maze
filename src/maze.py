@@ -237,7 +237,7 @@ class Maze():
             output.write('    <meta charset="UTF-8" />\n')
             output.write('    <title> Votre Labyrinthe </title>\n')
             output.write('    <link rel="stylesheet" type="text/css" href="{:s}maze.css"/>\n'.format(style_path))
-            output.write('    <link rel="icon" href="{:s}maze.ico"/>\n'.format(style_path))
+            output.write('    <link rel="icon" href="{:s}pictures/maze.ico"/>\n'.format(style_path))
             output.write('    <meta name="author" content="TAYEBI Ajwad, COIGNION Tristan, BECQUEMBOIS Logan" />\n')
             output.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n')
             output.write('  </head>\n\n')
