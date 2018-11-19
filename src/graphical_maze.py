@@ -93,10 +93,10 @@ def setup_wall(canvas, maze):
     width = maze.get_width()
     for y in range(height):
         for x in range(width):
-            cell = maze.get_cell(x, y)
-            if not cell.has_leftRampart():
+            cell = maze.get_square(x, y)
+            if not cell.has_left_rampart():
                 remove_wall(canvas, x, y, "Left", width, height)
-            if not cell.has_topRampart():
+            if not cell.has_top_rampart():
                 remove_wall(canvas, x, y, "Top", width, height)
 
 def set_circle(canvas, width, height, x, y):
@@ -137,7 +137,7 @@ def main(maze):
     maze_width = maze.get_width()
     maze_height = maze.get_height()
     win = Tk() # Creates a window object
-    win.title(random_word('ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
+    win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
     can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
     can.bind('<Button-1>',
              lambda event: draw_circle(can, event))
@@ -149,5 +149,5 @@ def main(maze):
 if __name__ == '__main__':
     # We shall parse command line arguments here
     # HERE We shall build a maze according to some arguments we have passed in the command line
-    maze = Maze().build_maze_from_text("Test/TestMaze/maze_20_20_0.txt") #DEBUG
+    maze = Maze().build_maze_from_text("../Test/TestMaze/maze_20_20_0.txt") #DEBUG
     main(maze)

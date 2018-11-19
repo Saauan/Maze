@@ -19,7 +19,7 @@ class Square():
                  'Top':'Bottom',
                  'Bottom':'Top'}
 
-    STATES = {"blank", "crossed"}
+    STATES = {"blank", "crossed", "wrong"}
     
     def __init__(self, x, y, state = "blank"):
         """
@@ -29,13 +29,13 @@ class Square():
         :Examples:
 
         >>> square = Square(0,1)
-        >>> square.has_leftRampart()
+        >>> square.has_left_rampart()
         True
-        >>> square.has_topRampart()
+        >>> square.has_top_rampart()
         True
-        >>> square.has_rightRampart()
+        >>> square.has_right_rampart()
         True
-        >>> square.has_bottomRampart()
+        >>> square.has_bottom_rampart()
         True
         >>> square.is_surrounded()
         True
@@ -44,7 +44,7 @@ class Square():
         >>> square.get_coordinates()
         (0, 1)
         >>> square.square_modification('Right', False)
-        >>> square.has_rightRampart()
+        >>> square.has_right_rampart()
         False
         >>> square.is_surrounded()
         False
@@ -56,7 +56,7 @@ class Square():
         self.__ramparts = {'Left' : True, 'Top' : True, 'Right' : True, 'Bottom' : True}
         self.__state = state
 
-    def has_leftRampart(self):
+    def has_left_rampart(self):
         """
         :return: True if self has a left-hand rampart, False otherwise
         :rtype: bool
@@ -64,12 +64,12 @@ class Square():
         :Example:
 
         >>> square = Square(0,1)
-        >>> square.has_leftRampart()
+        >>> square.has_left_rampart()
         True
         """
         return self.__ramparts['Left'] == True
 
-    def has_topRampart(self):
+    def has_top_rampart(self):
         """
         :return: True if self has an upper wall, False otherwise
         :rtype: bool
@@ -77,12 +77,12 @@ class Square():
         :Example:
 
         >>> square = Square(0,1)
-        >>> square.has_topRampart()
+        >>> square.has_top_rampart()
         True
         """
         return self.__ramparts['Top'] == True
             
-    def has_rightRampart(self):
+    def has_right_rampart(self):
         """
         :return: True if self has a right-hand wall, False otherwise
         :rtype: bool
@@ -90,12 +90,12 @@ class Square():
         :Example:
 
         >>> square = Square(0,1)
-        >>> square.has_rightRampart()
+        >>> square.has_right_rampart()
         True
         """
         return self.__ramparts['Right'] == True
 
-    def has_bottomRampart(self):
+    def has_bottom_rampart(self):
         """
         :return: True if self has a lower wall, False otherwise
         :rtype: bool
@@ -103,14 +103,31 @@ class Square():
         :Example:
 
         >>> square = Square(0,1)
-        >>> square.has_bottomRampart()
+        >>> square.has_bottom_rampart()
         True
         """
         return self.__ramparts['Bottom'] == True
+    
+    def has_common_rampart(self, neighbour, rampart):
+        """
+        :return: True if self and neighbour have a rampart between them, False otherwise
+        :rtype: bool
+        :UC: none
+        :Example:
 
+        >>> square = Square(0,1)
+        >>> square2 = Square(0,2)
+        >>> square.has_common_rampart(square2, "Bottom")
+        True
+        >>> square.square_modification("Bottom", False)
+        >>> square.has_common_rampart(square2, "Bottom")
+        False
+        """
+        return self.__ramparts[rampart] == neighbour.__ramparts[Square.OPPOSITES[rampart]]  == True 
+    
     def is_finish(self):
         """
-        :return: True if self is finish square, False otherwise
+        :return: True if self is the finish square, False otherwise
         :rtype: bool
         :UC: none
 
@@ -123,7 +140,13 @@ class Square():
         :side effect: sets the square as a finish square
         :return: None
 
-        TODO
+        :Example:
+        >>> square = Square(15,13)
+        >>> square.is_finish()
+        False
+        >>> square.set_finish()
+        >>> square.is_finish()
+        True
         """
         self.__is_finish = True
     
@@ -165,6 +188,17 @@ class Square():
         """
         return (self.__x, self.__y)
     
+    def get_state(self):
+        """
+        :return: (str) representing the square's state
+        :Example:
+        
+        >>> square = Square(0,1)
+        >>> square.get_state()
+        'blank'
+        """
+        return self.__state
+    
     def get_ramparts(self):
         """
         :return: (dict) containing the ramparts of the square
@@ -187,16 +221,36 @@ class Square():
         :Example:
         
         >>> square = Square(0,1)
-        >>> square.has_bottomRampart()
+        >>> square.has_bottom_rampart()
         True
         >>> square.square_modification("Bottom", False)
-        >>> square.has_bottomRampart()
+        >>> square.has_bottom_rampart()
         False
         """
-        assert (value == True) or (value == False), "The value of the rampart has to be a boolean."
+        assert value in {True, False}, "The value of the rampart has to be a boolean."
         assert rampart in {'Left','Top','Right','Bottom'}, "The rampart has to be Left, Top, Right or Bottom"
         self.__ramparts[rampart] = value
+        
+    def state_modification(self, value):
+        """
+        Modifies the state of a square
 
+        :param self: (Square) - the Square to modify
+        :param value: (str) - the state of the Square can be {'blank', 'crossed', 'wrong'}
+        :return: None
+        :effect: Change the state of the square
+        
+        :Example:
+        
+        >>> square = Square(0,1)
+        >>> square.get_state()
+        'blank'
+        >>> square.state_modification('crossed')
+        >>> square.get_state()
+        'crossed'
+        """
+        assert value in {'blank', 'crossed', 'wrong'}, "The state's value isn't right. Has to be blank, crossed or wrong."
+        self.__state = value
 
 if __name__ == '__main__':
     import doctest
