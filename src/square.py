@@ -23,9 +23,10 @@ class Square():
     
     def __init__(self, x, y, state = "blank"):
         """
-        :return: a new square of a maze's grid.
-        :rtype: Square
-        :UC: none
+        Creates a cell of a Maze.
+
+        :return: (Square) - a new square of a maze's grid.
+        :UC: None
         :Examples:
 
         >>> square = Square(0,1)
@@ -51,17 +52,17 @@ class Square():
         >>> square.get_ramparts()
         {'Left': True, 'Top': True, 'Right': False, 'Bottom': True}
         """
-        self.__is_finish = False
         self.__x, self.__y = x, y
         self.__ramparts = {'Left' : True, 'Top' : True, 'Right' : True, 'Bottom' : True}
         self.__state = state
-
+        
     def has_left_rampart(self):
         """
-        :return: True if self has a left-hand rampart, False otherwise
-        :rtype: bool
-        :UC: none
-        :Example:
+        Returns the status of `self`'s left rampart.
+
+        :return: (bool) - True if self has a left-hand rampart, False otherwise
+        :UC: None
+        :Examples:
 
         >>> square = Square(0,1)
         >>> square.has_left_rampart()
@@ -71,10 +72,11 @@ class Square():
 
     def has_top_rampart(self):
         """
-        :return: True if self has an upper wall, False otherwise
-        :rtype: bool
+        Returns the status of `self`'s top rampart.
+
+        :return: (bool) - True if self has an upper wall, False otherwise
         :UC: none
-        :Example:
+        :Examples:
 
         >>> square = Square(0,1)
         >>> square.has_top_rampart()
@@ -84,10 +86,11 @@ class Square():
             
     def has_right_rampart(self):
         """
-        :return: True if self has a right-hand wall, False otherwise
-        :rtype: bool
-        :UC: none
-        :Example:
+        Returns the status of `self`'s right rampart.
+
+        :return: (bool) - True if self has a right-hand wall, False otherwise
+        :UC: None
+        :Examples:
 
         >>> square = Square(0,1)
         >>> square.has_right_rampart()
@@ -97,10 +100,11 @@ class Square():
 
     def has_bottom_rampart(self):
         """
-        :return: True if self has a lower wall, False otherwise
-        :rtype: bool
-        :UC: none
-        :Example:
+        Returns the status of `self`'s bottom rampart.
+
+        :return: (bool) - True if self has a lower wall, False otherwise
+        :UC: None
+        :Examples:
 
         >>> square = Square(0,1)
         >>> square.has_bottom_rampart()
@@ -110,10 +114,11 @@ class Square():
     
     def has_common_rampart(self, neighbour, rampart):
         """
-        :return: True if self and neighbour have a rampart between them, False otherwise
-        :rtype: bool
-        :UC: none
-        :Example:
+        Returns the status of `self`'s and `neighbour`'s common rampart.
+
+        :return: (bool) - True if self and neighbour have a rampart between them, False otherwise
+        :UC: None
+        :Examples:
 
         >>> square = Square(0,1)
         >>> square2 = Square(0,2)
@@ -127,10 +132,11 @@ class Square():
     
     def is_surrounded(self):
         """
-        :return: True if the square is surrounded, False otherwise
-        :rtype: bool
-        :UC: none
-        :Example:
+        Returns the status of `self`'s encirclement.
+
+        :return: (bool) - True if the square is surrounded, False otherwise
+        :UC: None
+        :Examples:
 
         >>> square = Square(0,1)
         >>> square.is_surrounded()
@@ -140,7 +146,7 @@ class Square():
     
     def rampart_deletion(self, neighbour, rampart):
         """
-        Allows the 'destruction' of a rampart between 2 squares given as parameters.
+        Allows the 'destruction' of the `rampart` between `self` and his `neighbour`.
         
         :param self: (Square) - the first square
         :param neighbour: (Square) - the second
@@ -154,9 +160,10 @@ class Square():
    
     def get_coordinates(self):
         """
-        :return: (tuple) containing the coordinates of the square
-        
-        :Example:
+        Returns `self`'s coordinates.
+
+        :return: (tuple) - containing the coordinates of the square
+        :Examples:
         
         >>> square = Square(0,1)
         >>> square.get_coordinates()
@@ -166,8 +173,10 @@ class Square():
     
     def get_state(self):
         """
-        :return: (str) representing the square's state
-        :Example:
+        Returns `self`'s state.
+
+        :return: (str) - representing the square's state
+        :Examples:
         
         >>> square = Square(0,1)
         >>> square.get_state()
@@ -177,9 +186,10 @@ class Square():
     
     def get_ramparts(self):
         """
-        :return: (dict) containing the ramparts of the square
-        
-        :Example:
+        Returns `self`'s ramparts.
+
+        :return: (dict) - containing the ramparts of the square
+        :Examples:
         
         >>> square = Square(0,1)
         >>> square.get_ramparts()
@@ -189,12 +199,13 @@ class Square():
     
     def square_modification(self, rampart, value):
         """
+        Set `self`'s `rampart` to the `value` given.
+
         :param rampart: (str) - the rampart to modify
         :param value: (bool) - True if there is a rampart, False otherwise
         :return: None
         :effect: Change the value of one of the rampart
-        
-        :Example:
+        :Examples:
         
         >>> square = Square(0,1)
         >>> square.has_bottom_rampart()
@@ -209,14 +220,13 @@ class Square():
         
     def state_modification(self, value):
         """
-        Modifies the state of a square
+        Set `self`'s state to the `value` given.
 
         :param self: (Square) - the Square to modify
         :param value: (str) - the state of the Square can be {'blank', 'crossed', 'wrong'}
         :return: None
         :effect: Change the state of the square
-        
-        :Example:
+        :Examples:
         
         >>> square = Square(0,1)
         >>> square.get_state()
