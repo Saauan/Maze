@@ -372,5 +372,5 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=True)
 
-    maze = Maze().random_generation(20,20)
-    maze.picture_representation('Testhtml')
+    maze = Maze().random_generation(20,20) # DEBUG
+    maze.picture_representation('Testhtml') # DEBUG
