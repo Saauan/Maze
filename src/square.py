@@ -19,7 +19,7 @@ class Square():
                  'Top':'Bottom',
                  'Bottom':'Top'}
 
-    STATES = {"blank", "crossed", "wrong"}
+    STATES = {"blank", "crossed", "wrong", "finish"}
     
     def __init__(self, x, y, state = "blank"):
         """
@@ -125,31 +125,6 @@ class Square():
         """
         return self.__ramparts[rampart] == neighbour.__ramparts[Square.OPPOSITES[rampart]]  == True 
     
-    def is_finish(self):
-        """
-        :return: True if self is the finish square, False otherwise
-        :rtype: bool
-        :UC: none
-
-        TODO
-        """
-        return self.__is_finish
-
-    def set_finish(self):
-        """
-        :side effect: sets the square as a finish square
-        :return: None
-
-        :Example:
-        >>> square = Square(15,13)
-        >>> square.is_finish()
-        False
-        >>> square.set_finish()
-        >>> square.is_finish()
-        True
-        """
-        self.__is_finish = True
-    
     def is_surrounded(self):
         """
         :return: True if the square is surrounded, False otherwise
@@ -249,7 +224,7 @@ class Square():
         >>> square.get_state()
         'crossed'
         """
-        assert value in {'blank', 'crossed', 'wrong'}, "The state's value isn't right. Has to be blank, crossed or wrong."
+        assert value in STATES, "The state's value isn't right. Has to be blank, crossed, wrong or finish."
         self.__state = value
 
 if __name__ == '__main__':
