@@ -142,8 +142,9 @@ class Square():
         """
         Allows the 'destruction' of a rampart between 2 squares given as parameters.
         
-        :param: self & neighbour (Square) - the two specific squares
-                    rampart (str) - Must be 'Left', 'Top' 'Right' or 'Bottom'
+        :param self: (Square) - the first square
+        :param neighbour: (Square) - the second
+        :param rampart: (str) - Must be 'Left', 'Top' 'Right' or 'Bottom'
         :return: None
         :effect: Inverse the bool one-sided wall between neighbour and rampart (only horizontal or vertical)
         """
@@ -188,8 +189,8 @@ class Square():
     
     def square_modification(self, rampart, value):
         """
-        :param: rampart (str) - the rampart to modify
-                    value (bool) - True if there is a rampart, False otherwise
+        :param rampart: (str) - the rampart to modify
+        :param value: (bool) - True if there is a rampart, False otherwise
         :return: None
         :effect: Change the value of one of the rampart
         
@@ -224,9 +225,10 @@ class Square():
         >>> square.get_state()
         'crossed'
         """
-        assert value in STATES, "The state's value isn't right. Has to be blank, crossed, wrong or finish."
+        assert value in Square.STATES, "The state's value isn't right. Has to be blank, crossed, wrong or finish."
         self.__state = value
 
 if __name__ == '__main__':
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=True)
+
