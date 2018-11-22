@@ -15,9 +15,7 @@ from square import Square
 import stack
 import random
 
-##############################################
-# Function for game's setup and management
-##############################################
+
 class CreationError(Exception):
     """
     Error created to warn the user that he can't generate a maze on a generated one or resolve a maze already resolved.
@@ -34,68 +32,79 @@ class Maze():
 
     def __init__(self, width=10, height=8, x0 = 0, y0 = 0):
         """
-        Build a maze grid of size width*height cells.
+        Build a maze grid of size `width`*`height` cells.
 
         :param width: (int) [optional] - horizontal size (int) of the maze (default = 10)
         :param height: (int) [optional] - vertical size (int) of the maze (default = 8)
         :param x0: (int) [optional] - the x-coordinate of the starting point (default = 0)
         :param y0: (int) [optional] - the y-coordinate of the starting point (default = 0)
-        :return: an empty grid (Maze) of width*height squares
-        :CU: width and height must be positive integers
+        :return: (Maze) - an empty grid of `width`*`height` Squares
+        :UC: `width` and `height` must be positive integers
+        :Examples:
         
-        Example:
         >>> game = Maze(15,12)
         >>> game.get_width()
         15
         >>> game.get_height()
         12 
         """
-        assert type(width) == int and type(height) == int, 'The width & the height of your maze have to be int numbers'
+        assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
         self.__x0, self.__y0 = x0, y0
-        self.__width = width
-        self.__height = height
+        self.__width, self.__height = width, height
         self.maze = [[Square(X,Y) for Y in range(height)] for X in range(width)]
         
     def get_height(self):
         """
-        Used to obtain the height of the maze self.
+        Returns `self`'s height.
         
-        :param: self (Maze) - your maze
-        :return: height (int) of the maze
-        :CU: none
+        :param self: (Maze) - your maze
+        :return: (int) - height of the maze
+        :UC: None
+        :Examples:
+        
+        >>> M = Maze(10,5)
+        >>> M.get_height()
+        5
         """
         return self.__height
 
     def get_width(self):
         """
-        Used to obtain the width of the maze self.
+        Returns `self`'s width.
         
-        :param: self (Maze) - your maze
-        :return: width (int) of the maze
-        :CU: none
+        :param self: (Maze) - your maze
+        :return: (int) - width of the maze
+        :UC: None
+        :Examples:
+        
+        >>> M = Maze(9,15)
+        >>> M.get_width()
+        9
         """
         return self.__width
    
     def get_square(self, x, y):
         """
-        Used to obtain the specific square with the given coordinates.
+        Returns the `self`'s square which has as coordinates (`x`, `y`).
 
         :param self: (Maze) - your maze
         :param x: (int) - x-coordinate of a square
         :param y: (int) - y-coordinate of a square
-        :return: the square (Square) of coordinates (x,y) in the game's grid
-        :CU: 0 <= x < self.get_width() and 0 <= y < self.get_height() of the maze
+        :return: (Square) - the square of coordinates (x,y) in the game's grid
+        :UC: 0 <= `x` < self.get_width() and 0 <= `y` < self.get_height() of the maze and `x` and `y` have to be positive integers
         """
+        assert 0 <= x < self.get_width() and 0 <= y < self.get_width(), "Your coordinates are out of the maze's boundaries."
+        assert type(x) == int and type(y) == int, 'The x-coordinate & the y-coordinate of your square have to be positive integers'
         return self.maze[x][y]
     
     def hand_generation(self):
         """
-        Allow the user to create a maze from a blank one by himself.
+        Allow the user to create a maze from a blank one `self` by himself.
         
-        :param: self (Maze) - a fresh new maze
+        :param self: (Maze) - a fresh new maze
         :return: None
         :effect: Launch a series of inputs which the user has to complete correctly
-        :CU: self has to be a new, not modified.
+        :UC: self has to be a new, not modified.
                 If already modified, CreationError raised.
         """
         if not self.get_square(0,0).is_surrounded():
@@ -120,9 +129,10 @@ class Maze():
                           
     def __str__(self):
         """
-        :return: An external representation of the maze self
-        :rtype: str
-        :UC: none
+        Gives a textual representation of `self` by printing it.
+
+        :return: (str) - An external representation of the maze self
+        :UC: None
         """
         Labyrinth = [ ('+-' * self.get_width()) + '+'] # We initiate the first line of the maze
         LastLine = Labyrinth[0]
@@ -162,14 +172,13 @@ class Maze():
 
     def neighbourhood(self, square):
         """
-        Create a list of possible neighbours for a selected square.
+        Create a list of possible neighbours for `square` in `self`. Used for random_generation.
         
         :param self (Maze) - a fresh new maze
         :param square: (Square) - a square in the maze self
-        :return: neighbours (list) of possible neighbours for square
-        :CU: None
+        :return: (list(tuple(str, Square))) - list of possible neighbours for `square`
+        :UC: None
         """
-             
         potential_neighbours = [('Top', (0,-1)),
                                 ('Left', (-1,0)),('Right', (1,0)),
                                          ('Bottom', (0,1))]
@@ -185,14 +194,15 @@ class Maze():
     @staticmethod
     def random_generation(width, height):
         """
-        Allow the user to create a random maze from a blank one.
+        Allow the user to create a random maze of `width`*`height` squares.
         
-        :param self: (Maze) - a fresh new maze
+        :param width: (int) - the width of your maze
+        :param height: (int) - the height of your maze
         :return: None
         :effect: Change the values of some walls of self
-        :CU: self has to be a new, not modified.
-                If already modified, CreationError raised.
+        :UC: `width` and `height` must be positive integers
         """
+        assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
         maze = Maze(width, height)
         try:
             nbSquares, memoryPath = maze.get_width()*maze.get_height(), stack.Stack() # We initiate the total number of squares to check & a stack containing the last position
@@ -215,13 +225,13 @@ class Maze():
  
     def text_representation(self, filename):
         """
-        Create a new text file containing maze's informations.
+        Create a new text file, named `filename`, containing the maze `self`s informations.
         
         :param self: (Maze) - a fresh new maze
         :param filename: (str) - the name of the file which will contain the maze self
         :return: None
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
-        :CU: the maze self has to be already generated.
+        :UC: the maze self has to be already generated.
         """
         if not self.get_square(0,0).is_surrounded():
             with open("{:s}.txt".format(filename), "w") as mazeModel :
@@ -231,16 +241,16 @@ class Maze():
                 
     def picture_representation(self, fichier, style_path=STYLE_PATH):
         """
-        Write an HTML file containing a SVG representation of the maze to filename.
+        Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
         
         :param self: (Maze) - the Maze to represent in an HTML file
         :param fichier: (str) - the name of the file you want to get your picture representation
-        :param style_path: (str) the path to the directory of the styles sheets
+        :param style_path: (str) [optional] - the path to the directory of the styles sheets (default = "../ressources/styles/")
         :return: None
         :effect: Create a new HTML file in the folder containing the SVG representation of the maze
-        :CU: the maze self has to be already generated
+        :UC: the maze self has to be already generated
         """
-        H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 15 # Size of the Maze in pixels & the padding (used later)
+        H = 775 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
         with open("{:s}.html".format(fichier), 'w') as output:
@@ -278,13 +288,13 @@ class Maze():
     
     def resolution_neighbours(self, square):
         """
-        Creates a list of possible neighbours for a selected square. They must not have the `wrong` or `crossed` state
-        This will allow to not select them twice during the resolution_path
+        Creates a list of possible neighbours for `square`. Used for resolution_path.
+        They must not have the 'wrong' or 'crossed' state to not repeat the selection of a square during the resolution.
         
         :param self: (Maze) - a generated maze
         :param square: (Square) - a square in the maze self
-        :return: neighbours (list) of possible neighbours for the square
-        :CU: self has to be already generated
+        :return: (list(tuple(str, Square))) - list of possible neighbours for the square
+        :UC: self has to be already generated
         """
         potential_neighbours = [('Top', (0,-1)),
                                 ('Left', (-1,0)),('Right', (1,0)),
@@ -303,8 +313,8 @@ class Maze():
         Returns to the user the list corresponding to the path from the beginning square until the finish square.
         
         :param self: (Maze) - a fresh new maze
-        :param more_path: (bool) if True, the function returns the path of all cells it went through (even the wrong ones). If False, it returns only the list of correct squares
-        :param talkative: (bool) True if we want to have more informations on the process of the function
+        :param more_path: (bool) - if True, the function returns the path of all cells it went through (even the wrong ones). If False, it returns only the list of correct squares
+        :param talkative: (bool) - True if we want to have more informations on the process of the function
         :return: (list(tuple(int, int))) A list of tuples of the coordinates of the resolution path in the correct order
                  If more_path is set to True, return a tuple of two lists, with the second list being the path the function followed (see `more_path`)
         :effect: Change the values of some squares' state of self
@@ -352,9 +362,8 @@ class Maze():
         - "-" and "|" for the walls separating adjacent squares
         - " " for the squares and the passages between them
 
-        :param filename: (str) a valid name of a text file
-        :return: A maze built from the text file
-        :returntype: Maze
+        :param filename: (str) - a valid name of a text file
+        :return: (Maze) - A maze built from the text file
         :UC: None
         """
         with open(filename, "r") as instream:
