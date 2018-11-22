@@ -17,6 +17,95 @@ Uses:
             - square.py (Dependancy)
 """
 from graphical_maze import * #pylint: disable=W0614
+from maze import Maze, CreationError
+from tkinter import * #pylint: disable=W0614
+from functools import partial
+
+SETUP_WIDTH = 800
+SETUP_HEIGHT = 600
+
+def toggle_check(elems):
+    """
+    Toggles the state of a Tkinter item on the window
+
+    :param elems: (list) a list of the items to toggle
+    :side effect: sets the state of the checkButtons to disable or normal
+    :return: None
+    """
+    for elem in elems:
+        if elem["state"] == "normal":
+            elem["state"] = 'disabled'
+        else:
+            elem["state"] = "normal"
+
+
+def setup_window():
+    """
+    Opens a window for the user to input parameters and then returns those parameters
+    """
+    winset = Tk()
+    winset.title("Maze setup")
+    title = Label(winset, text="Please, select options in order to continue")
+    exitButton = Button(winset, text='Exit', command=quit)
+    okButton = Button(winset, text="OK", command=winset.destroy)
+
+    widthLabel = Label(winset, text="Width of the maze (integer)")
+    heightLabel = Label(winset, text="Height of the maze (integer)")
+    width = StringVar(winset)
+    height = StringVar(winset)
+    widthEntry = Entry(winset, textvariable=width)
+    heightEntry = Entry(winset, textvariable=height)
+
+    genLabel = Label(winset, text="Generation Options (Chose only one)")
+    varGen = IntVar()
+    varGen.set(2)
+    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation")
+    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file")
+    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly")
+
+    saveLabel = Label(winset, text="Save Options")
+    is_save = IntVar(winset, 1)
+    saveCheck = Checkbutton(winset, variable= is_save, text="Save into a file")
+    is_saveres = IntVar(winset, 0)
+    saveresCheck = Checkbutton(winset, variable= is_saveres, text="Save into a file with the resolution")
+    is_savehtml = IntVar(winset, 0)
+    savehtmlCheck = Checkbutton(winset, variable= is_savehtml, text="Save into a html file")
+
+    graphicLabel = Label(winset, text="Graphic Options")
+    is_graphicres = IntVar(winset, 1)
+    graphicresCheck = Checkbutton(winset, variable=is_graphicres, text="Display the resolution on the maze")
+    is_dynamic = IntVar(winset, 1)
+    dynamicCheck = Checkbutton(winset, variable=is_dynamic, text="Display the resolution dynamically")
+    is_graphic = IntVar(winset, 1)
+    graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(toggle_check, [graphicresCheck, dynamicCheck]))
+
+
+    title.grid(row = 0, column = 0, padx=10) # Positions the label in the grid
+    exitButton.grid(row=12, column=0)
+    okButton.grid(row=12, column=1)
+    widthLabel.grid(row=1, column=0, pady=(10, 0))
+    widthEntry.grid(row=1, column=1, pady=(10, 0))
+    heightLabel.grid(row=2, column=0)
+    heightEntry.grid(row=2, column=1)
+
+    genLabel.grid(row = 3, column = 0, pady=(10, 0))
+    handgenCheck.grid(row = 4, column = 0)
+    textgenCheck.grid(row = 5, column = 0)
+    randomgenCheck.grid(row = 6, column = 0)
+
+    saveLabel.grid(row = 3, column = 1, pady=(10, 0))
+    saveCheck.grid(row = 4, column = 1)
+    saveresCheck.grid(row = 5, column = 1)
+    savehtmlCheck.grid(row = 6, column = 1)
+
+    graphicLabel.grid(row = 7, column = 0, pady=(10, 0))
+    graphicCheck.grid(row = 8, column = 0)
+    graphicresCheck.grid(row = 9, column = 0 )
+    dynamicCheck.grid(row = 10, column = 0)
+
+
+    winset.mainloop()
+
 
 def main(maze):
     maze_width = maze.get_width()
@@ -34,5 +123,8 @@ def main(maze):
 if __name__ == '__main__':
     # We shall parse command line arguments here
     # HERE We shall build a maze according to some arguments we have passed in the command line
+
+    setup_window()
+
     maze = Maze().build_maze_from_text("../Test/TestMaze/maze_20_20_0.txt") #DEBUG
     main(maze)
