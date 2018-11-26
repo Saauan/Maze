@@ -137,6 +137,20 @@ def askfile():
     if filename.get() != None:
         print("This file has been selected", filename.get())
 
+def toggle1(widthEntry, heightEntry, fileEntry, fileButton):
+    """
+    toggles off widthEntry, heightEntry, and toggles on fileEntry and fileButton
+    """
+    toggle_state_off([widthEntry, heightEntry])
+    toggle_state_on([fileEntry, fileButton])
+
+def toggle2(widthEntry, heightEntry, fileEntry, fileButton):
+    """
+    toggles on widthEntry, heightEntry, and toggles off fileEntry and fileButton
+    """
+    toggle_state_on([widthEntry, heightEntry])
+    toggle_state_off([fileEntry, fileButton])
+
 def setup_winentries(winset):
     """
     Returns the entries items used for the setup_window
@@ -156,11 +170,11 @@ def setup_winentries(winset):
     fileLabel = Label(winset, text="Generate from which file ? ")
     global filename
     filename = StringVar(winset)
-    fileEntry = Entry(winset, textvariable=filename, state="normal")
-    fileButton = Button(winset, text="Browse", command=askfile)
+    fileEntry = Entry(winset, textvariable=filename, state="disabled")
+    fileButton = Button(winset, text="Browse", command=askfile, state="disabled")
     return widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton
 
-def setup_wingen(winset, widthEntry, heightEntry):
+def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton):
     """
     Returns the generation items used for the setup_window
 
@@ -171,9 +185,12 @@ def setup_wingen(winset, widthEntry, heightEntry):
     genLabel = Label(winset, text="Generation Options (Chose only one)")
     varGen = IntVar()
     varGen.set(2)
-    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation", command=partial(toggle_state_on, [widthEntry, heightEntry]))
-    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggle_state_off, [widthEntry, heightEntry]))
-    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggle_state_on, [widthEntry, heightEntry]))
+
+    # When handgen or randomgen is selected, the width and height entries will be activated, and the file entry and button are disabled
+    # When texgen is selected, the reverse operation is done
+    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation", command=partial(toggle2, widthEntry, heightEntry, fileEntry, fileButton))
+    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggle1, widthEntry, heightEntry, fileEntry, fileButton))
+    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggle2, widthEntry, heightEntry, fileEntry, fileButton))
 
     return genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck
 
@@ -268,7 +285,7 @@ def setup_window():
     widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton = entries_var
 
     # Generation setup
-    gen_var = setup_wingen(winset, widthEntry, heightEntry)
+    gen_var = setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton)
     genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck = gen_var
 
     # Save setup
