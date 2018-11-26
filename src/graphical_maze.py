@@ -2,21 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
-:script:`graphical_maze` script
+:mod:`graphical_maze` module
 
 :author: Coignion Tristan, Tayebi Ajwad, Becquembois Logan
 
 :date:  15/11/2018
 
-This script is used to display a Graphical interface of the Maze
+This module provides function which help display the maze from the Maze module in a window
 
 Uses: 
     - maze.py
         - square.py (Dependancy)
     - tkinter
 """
-from tkinter import *
-from maze import *
+from tkinter import * #pylint: disable=W0614
+from maze import * #pylint: disable=W0614
 from random import choice
 
 CAN_WIDTH = 800
@@ -33,9 +33,9 @@ def draw_circle(canvas, event):
                        fill = 'red')
     canvas.update()
     
-def draw_grid(canvas, width, height):
-    DX = CAN_WIDTH // width # Width of a square
-    DY = CAN_HEIGHT // height
+def draw_grid(canvas, width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
+    DX = can_width // width # Width of a square
+    DY = can_height // height
     for y in range(height):
         for x in range(width):
             canvas.create_line(x * DX, y * DY,
@@ -61,7 +61,7 @@ def random_word(filename):
         
     return choice(lines).rstrip('\n')
 
-def remove_wall(canvas, x, y, side, width, height):
+def remove_wall(canvas, x, y, side, width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
     """
     removes a wall from a side of a cell on the canvas
 
@@ -72,8 +72,8 @@ def remove_wall(canvas, x, y, side, width, height):
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
-    DX = CAN_WIDTH // width # This is the width of a square
-    DY = CAN_HEIGHT // height # This is the height of a square
+    DX = can_width // width # This is the width of a square
+    DY = can_height // height # This is the height of a square
     if side == "Left":
         canvas.create_line(x * DX, y * DY, (x) * DX, (y + 1) * DY, fill=BG_COLOR, width=1)
     if side == "Top":
@@ -99,7 +99,7 @@ def setup_wall(canvas, maze):
             if not cell.has_top_rampart():
                 remove_wall(canvas, x, y, "Top", width, height)
 
-def set_circle(canvas, width, height, x, y):
+def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
     """
     draws a circle on the cell of coordinates (x,y)
 
@@ -109,13 +109,13 @@ def set_circle(canvas, width, height, x, y):
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
-    DX = CAN_WIDTH // width 
-    DY = CAN_HEIGHT // height 
+    DX = can_width // width 
+    DY = can_height // height 
     canvas.create_oval(x*DX*1.02, y*DY*0.98,
                        (x+1)*DX*0.98, (y-1)*DY*1.02,
                        fill = "red")
     
-def set_bad_cell(canvas, width, height, x, y):
+def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
     """
     TODO: change the name of the function
 
@@ -127,27 +127,8 @@ def set_bad_cell(canvas, width, height, x, y):
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
-    DX = CAN_WIDTH // width # This is the width of a square
-    DY = CAN_HEIGHT // height # This is the height of a square
+    DX = can_width // width # This is the width of a square
+    DY = can_height // height # This is the height of a square
     canvas.create_rectangle(x*DX+1, y*DY-1,
                          (x+1)*DX-1, (y+1)*DY+1,
                          fill = "gray")
-
-def main(maze):
-    maze_width = maze.get_width()
-    maze_height = maze.get_height()
-    win = Tk() # Creates a window object
-    win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
-    can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
-    can.bind('<Button-1>',
-             lambda event: draw_circle(can, event))
-    can.pack() # Allows the canvas to be handled as grid and columns
-    draw_grid(can, maze_width, maze_height) 
-    setup_wall(can, maze)
-    win.mainloop()
-    
-if __name__ == '__main__':
-    # We shall parse command line arguments here
-    # HERE We shall build a maze according to some arguments we have passed in the command line
-    maze = Maze().build_maze_from_text("../Test/TestMaze/maze_20_20_0.txt") #DEBUG
-    main(maze)

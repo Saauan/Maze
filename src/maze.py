@@ -211,11 +211,8 @@ class Maze():
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :CU: the maze self has to be already generated.
         """
-        if not self.get_square(0,0).is_surrounded():
-            with open("{:s}.txt".format(filename), "w") as mazeModel :
-                mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
-        else:
-            raise CreationError("The Maze isn't generated, you can't write it in a text file.")
+        with open("{:s}".format(filename), "w") as mazeModel :
+            mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
                 
     def picture_representation(self, fichier, style_path=STYLE_PATH):
         """
@@ -231,7 +228,7 @@ class Maze():
         H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 15 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
-        with open("{:s}.html".format(fichier), 'w') as output:
+        with open("{:s}".format(fichier), 'w') as output:
             output.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">\n\n')
             output.write('  <head>\n')
             output.write('    <meta charset="UTF-8" />\n')
