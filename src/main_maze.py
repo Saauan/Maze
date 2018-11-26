@@ -25,6 +25,7 @@ import os
 
 SETUP_WIDTH = 800
 SETUP_HEIGHT = 600
+SAVE_PATH = "../mazes/"
 
 global filename # global variable
 
@@ -165,53 +166,70 @@ def setup_window():
             is_save.get(), is_saveres.get(), is_savehtml.get(),
             is_graphic.get(), is_graphicres.get(), is_dynamic.get())
 
-
-def main(width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic):
+def parse_gen(width, height, filepath, varGen):
     """
     """
-    try:
-        width = int(width)
-        height = int(height)
-    except TypeError:
-        raise TypeError("The width and height are not of the correct type !")
-
     if varGen == 1:
         maze = Maze().build_maze_from_text(filepath)
-        width = maze.get_width()
-        height = maze.get_height()
-    elif varGen == 2:
-        maze = Maze().random_generation(width, height)
     else:
-        # maze = Maze.hand_generation()
-        pass
+        try:
+            width = int(width)
+            height = int(height)
+        except TypeError:
+            raise TypeError("The width and height are not of the correct type !")
+        if varGen == 2:
+            maze = Maze().random_generation(width, height)
+        else:
+            # maze = Maze.hand_generation() #TODO
+            pass
+    return maze
 
+def parse_save(maze, is_save, is_saveres, is_savehtml):
+    """
+    """
     if is_save:
-        pass
+        maze.text_representation(SAVE_PATH+"maze.txt")
     if is_saveres:
+        # maze.text_representation(SAVE_PATH+"maze_res.txt", res=True)
         pass
     if is_savehtml:
-        pass
+        maze.picture_representation(SAVE_PATH+"maze_html.html")
+
+def graph_disp(maze, is_graphicres, is_dynamic):
+    """
+    """
+    width = maze.get_width()
+    height = maze.get_height()
+    win = Tk() # Creates a window object
+    win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
+    can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
+    can.bind('<Button-1>',
+            lambda event: draw_circle(can, event))
+    can.pack() # Allows the canvas to be handled as grid and columns
+    draw_grid(can, width, height) 
+    setup_wall(can, maze)
+    if is_graphicres:
+        if is_dynamic:
+            pass
+            # Display all the resolution progressively
+        else:
+            pass
+            # Display all the resolution in one go
+    win.mainloop()
+
+def main():
+    """
+    """
+    setup_var = setup_window()
+    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
+    
+    maze = parse_gen(width, height, filepath, varGen)
+
+    parse_save(maze, is_save, is_saveres, is_savehtml)
 
     if is_graphic:
-        win = Tk() # Creates a window object
-        win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
-        can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
-        can.bind('<Button-1>',
-                lambda event: draw_circle(can, event))
-        can.pack() # Allows the canvas to be handled as grid and columns
-        draw_grid(can, width, height) 
-        setup_wall(can, maze)
-        if is_graphicres:
-            if is_dynamic:
-                pass
-        win.mainloop()
+        graph_disp(maze, is_graphicres, is_dynamic)
 
     
 if __name__ == '__main__':
-    # We shall parse command line arguments here
-    # HERE We shall build a maze according to some arguments we have passed in the command line
-
-    setup_var = setup_window()
-    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
-    print(*setup_var)
-    main(*setup_var)
+    main()
