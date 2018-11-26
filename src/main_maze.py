@@ -127,6 +127,8 @@ def strip_filename(c):
 def askfile():
     """
     asks the user for a file and stores the result in filename
+    
+    :return: (str) it has the form of "<_io.TextIOWrapper name='/TESTPATH' mode='r' encoding='UTF-8'>"
     """
     global filename
     print("test")
@@ -135,20 +137,14 @@ def askfile():
     if filename.get() != None:
         print("This file has been selected", filename.get())
 
-##################
-# MAIN FUNCTIONS #
-##################
-
-def setup_window():
+def setup_winentries(winset):
     """
-    Opens a window for the user to input parameters and then returns those parameters
-    """
-    winset = Tk()
-    winset.title("Maze setup")
-    title = Label(winset, text="Please, select options in order to continue")
-    exitButton = Button(winset, text='Exit', command=quit)
-    okButton = Button(winset, text="OK", command=winset.destroy)
+    Returns the entries items used for the setup_window
 
+    :param: (Tk) a window
+    :return:
+    TODO
+    """
     widthLabel = Label(winset, text="Width of the maze (integer)")
     heightLabel = Label(winset, text="Height of the maze (integer)")
     width = StringVar(winset)
@@ -162,7 +158,16 @@ def setup_window():
     filename = StringVar(winset)
     fileEntry = Entry(winset, textvariable=filename, state="normal")
     fileButton = Button(winset, text="Browse", command=askfile)
+    return widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton
 
+def setup_wingen(winset, widthEntry, heightEntry):
+    """
+    Returns the generation items used for the setup_window
+
+    :param: (Tk) a window
+    :return:
+    TODO
+    """
     genLabel = Label(winset, text="Generation Options (Chose only one)")
     varGen = IntVar()
     varGen.set(2)
@@ -170,6 +175,16 @@ def setup_window():
     textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggle_state_off, [widthEntry, heightEntry]))
     randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggle_state_on, [widthEntry, heightEntry]))
 
+    return genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck
+
+def setup_winsave(winset):
+    """
+    Returns the save items used for the setup_window
+
+    :param: (Tk) a window
+    :return:
+    TODO
+    """
     saveLabel = Label(winset, text="Save Options")
     is_save = IntVar(winset, 1)
     saveCheck = Checkbutton(winset, variable= is_save, text="Save into a file")
@@ -178,6 +193,16 @@ def setup_window():
     is_savehtml = IntVar(winset, 0)
     savehtmlCheck = Checkbutton(winset, variable= is_savehtml, text="Save into a html file")
 
+    return saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
+
+def setup_wingraphic(winset):
+    """
+    Returns the graphic items used for the setup_window
+
+    :param: (Tk) a window
+    :return:
+    TODO
+    """
     graphicLabel = Label(winset, text="Graphic Options")
     is_graphicres = IntVar(winset, 1)
     graphicresCheck = Checkbutton(winset, variable=is_graphicres, text="Display the resolution on the maze")
@@ -186,7 +211,77 @@ def setup_window():
     is_graphic = IntVar(winset, 1)
     graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
 
+    return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck
 
+def check_if_setup_correct(win, width, height):
+    """
+    Checks if the inputs the user has types are correct
+    If it is correct, the window is destroyed, else, a warning is displayed
+    To be correct, width.get() and height.get() must be convertible to integer
+    """
+    try:
+        int(width.get())
+        int(height.get())
+        win.destroy()
+    except:
+        winwarning = Tk()
+        winwarning.title("Warning")
+        warningLabel = Label(winwarning, text="The values you have entered are not correct, please try again. (Width and height must be integer)")
+        warningOkButton = Button(winwarning, text="OK", command=winwarning.destroy)
+        warningLabel.grid()
+        warningOkButton.grid()
+
+##################
+# MAIN FUNCTIONS #
+##################
+
+def setup_window():
+    """
+    Opens a window for the user to input parameters and then returns those parameters
+
+    :side effect: Opens a Tkinter window on which the user has to input the parameters of the program
+    :return: The function returns 10 values in a tuple listed below:
+        - (int) The width of the maze
+        - (int) The height of the maze
+        - (str) The path of the text file from which we can build a maze
+        - (int) The generation the user has chosen
+            * 0 : Hand generation
+            * 1 : Generate from a text file
+            * 2 : Generate randomly
+        - (int) 1 if the user wants to save in a text file, 0 otherwise
+        - (int) 1 if the user wants the resolution to be saved too, 0 otherwise
+        - (int) 1 if the user wants the maze to be saved into a html file, 0 otherwise
+        - (int) 1 if the user wants the maze to be displayed graphically, 0 otherwise
+        - (int) 1 if the user wants to see the resolution to be displayed, 0 otherwise
+        - (int) 1 if the user wants the resolution to be displayed dynamically, 0 otherwise
+    :UC: None
+    """
+    # Setup of the window
+    winset = Tk()
+    winset.title("Maze setup")
+    title = Label(winset, text="Please, select options in order to continue")
+    exitButton = Button(winset, text='Exit', command=quit)
+    okButton = Button(winset, text="OK")
+
+    # Entries (width, height and filepath) setup
+    entries_var = setup_winentries(winset)
+    widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton = entries_var
+
+    # Generation setup
+    gen_var = setup_wingen(winset, widthEntry, heightEntry)
+    genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck = gen_var
+
+    # Save setup
+    save_var = setup_winsave(winset)
+    saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck = save_var
+
+    # Graphic setup
+    graphic_var = setup_wingraphic(winset)
+    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck = graphic_var
+
+    okButton["command"] = partial(check_if_setup_correct, winset, width, height)
+
+    # Placement
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
     exitButton.grid(row=100, column=0)
     okButton.grid(row=100, column=1)
@@ -215,19 +310,37 @@ def setup_window():
     graphicresCheck.grid(row = 32, column = 0 )
     dynamicCheck.grid(row = 33, column = 0)
 
-
     winset.mainloop()
-    return (width.get(), height.get(), filename.get(), varGen.get(), 
+
+    return (int(width.get()), int(height.get()), filename.get(), varGen.get(), 
             is_save.get(), is_saveres.get(), is_savehtml.get(),
             is_graphic.get(), is_graphicres.get(), is_dynamic.get())
 
 def parse_gen(width, height, filepath, varGen):
     """
+    Returns a maze generated accordingly to the arguments of the function
+    
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param filepath: (str) a path of a file we want to generate a maze from
+    :param varGen: (int) The generation the user has chosen
+            * 0 : Hand generation
+            * 1 : Generate from a text file
+            * 2 : Generate randomly
+    :return: (Maze) a maze
+    :UC: None
+    :Examples:
+
+    >>> maze_test = parse_gen(20, 20, "", 2)
+    >>> maze_test.get_height()
+    20
+    >>> maze_test.get_width()
+    20
     """
     if varGen == 1:
         maze = Maze().build_maze_from_text(filepath)
     else:
-        try:
+        try: # TO REMOVE
             width = int(width)
             height = int(height)
         except TypeError:
@@ -241,6 +354,13 @@ def parse_gen(width, height, filepath, varGen):
 
 def parse_save(maze, is_save, is_saveres, is_savehtml):
     """
+    Saves the maze into different files depending on the arguments of the function
+
+    :param maze: (Maze)
+    :param is_save: (bool) if True, the maze will be saved as is in a text file
+    :param is_saveres: (bool) if True, the maze and its resolution will be saved in a text file
+    :param is_savehtml: (bool) if True, the maze and its resolution will be saved in an html file
+    :return: None
     """
     if is_save:
         maze.text_representation(SAVE_PATH+"maze.txt")
@@ -275,18 +395,22 @@ def graph_disp(maze, is_graphicres, is_dynamic):
 def main():
     """
     """
+    # We get all the setup variable from the user using a GUI
     setup_var = setup_window()
     width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
-    
+
+    # We generate the maze
     maze = parse_gen(width, height, filepath, varGen)
 
+    # If we must, we save it in files
     parse_save(maze, is_save, is_saveres, is_savehtml)
 
+    # Displays the maze
     if is_graphic:
         graph_disp(maze, is_graphicres, is_dynamic)
 
     
 if __name__ == '__main__':
+    main()
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=False)
-    main()
