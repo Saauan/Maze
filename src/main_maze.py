@@ -29,13 +29,30 @@ SAVE_PATH = "../mazes/"
 
 global filename # global variable
 
-def toggle_check(elems):
+####################
+# WINDOW FUNCTIONS #
+####################
+
+def invert_state(elems):
     """
     Toggles the state of a Tkinter item on the window
 
     :param elems: (list) a list of the items to toggle
-    :side effect: sets the state of the objects to `disable` or `normal`
+    :side effect: Inverts the state of the items from `disabled` to `normal` and vice-versa
     :return: None
+    :UC: items of elems must have a state attribute
+    :Examples:
+
+    >>> root = Tk()
+    >>> root.withdraw()
+    ''
+    >>> someObject = Button(root, state="normal")
+    >>> anotherObject = Entry(root, textvariable="test", state="disabled")
+    >>> invert_state([someObject, anotherObject])
+    >>> someObject["state"] == "disabled"
+    True
+    >>> anotherObject["state"] == "normal"
+    True
     """
     for elem in elems:
         if elem["state"] == "normal":
@@ -45,28 +62,63 @@ def toggle_check(elems):
 
 def toggle_state_on(elems):
     """
-    toggles on the state of a Tkinter item on the window
+    Toggles on the state of a Tkinter item on the window
 
     :param elems: (list) a list of items to activate
     :side effect: sets the state of the objects to `normal`
     :return: None
+    :UC: items of elems must have a state atribute
+    :Examples:
+
+    >>> root = Tk()
+    >>> root.withdraw()
+    ''
+    >>> someObject = Button(root, state="normal")
+    >>> anotherObject = Entry(root, textvariable="test", state="disabled")
+    >>> toggle_state_on([someObject, anotherObject])
+    >>> someObject["state"] == "normal"
+    True
+    >>> anotherObject["state"] == "normal"
+    True
     """
     for elem in elems:
         elem["state"] = "normal"
 
 def toggle_state_off(elems):
     """
-    toggles off the state of a Tkinter item on the window
+    Toggles off the state of a Tkinter item on the window
 
     :param elems: (list) a list of items to activate
     :side effect: sets the state of the objects to `disabled`
     :return: None
+    :UC: items of elems must have a state attributes
+    :Examples:
+
+    >>> root = Tk()
+    >>> root.withdraw()
+    ''
+    >>> someObject = Button(root, state="normal")
+    >>> anotherObject = Entry(root, textvariable="test", state="disabled")
+    >>> toggle_state_off([someObject, anotherObject])
+    >>> someObject["state"] == "disabled"
+    True
+    >>> anotherObject["state"] == "disabled"
+    True
     """
     for elem in elems:
         elem["state"] = "disabled"
 
 def strip_filename(c):
     """
+    returns just a path of a file using a string coming from the filedialog.askopen() method
+
+    :param c: (str)
+    :return: (str) the path of a file
+    :UC: c MUST be the return of filedialog.askopenfile()
+    :Example:
+
+    >>> strip_filename("<_io.TextIOWrapper name='/TESTPATH' mode='r' encoding='UTF-8'>")
+    '/TESTPATH'
     """
     c = c.lstrip("<_io.TextIOWrapper name='")
     c = c.rstrip("' mode='r' encoding='UTF-8'>")
@@ -83,6 +135,9 @@ def askfile():
     if filename.get() != None:
         print("This file has been selected", filename.get())
 
+##################
+# MAIN FUNCTIONS #
+##################
 
 def setup_window():
     """
@@ -129,7 +184,7 @@ def setup_window():
     is_dynamic = IntVar(winset, 1)
     dynamicCheck = Checkbutton(winset, variable=is_dynamic, text="Display the resolution dynamically")
     is_graphic = IntVar(winset, 1)
-    graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(toggle_check, [graphicresCheck, dynamicCheck]))
+    graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
 
 
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
@@ -232,4 +287,6 @@ def main():
 
     
 if __name__ == '__main__':
+    import doctest
+    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=False)
     main()
