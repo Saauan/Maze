@@ -130,32 +130,34 @@ def setup_window():
 
 
     title.grid(row = 0, column = 0, padx=10) # Positions the label in the grid
-    exitButton.grid(row=12, column=0)
-    okButton.grid(row=12, column=1)
-    widthLabel.grid(row=1, column=0, pady=(10, 0))
-    widthEntry.grid(row=1, column=1, pady=(10, 0))
-    heightLabel.grid(row=2, column=0)
-    heightEntry.grid(row=2, column=1)
-
-    genLabel.grid(row = 3, column = 0, pady=(10, 0))
-    handgenCheck.grid(row = 4, column = 0)
-    textgenCheck.grid(row = 5, column = 0)
-    randomgenCheck.grid(row = 6, column = 0)
-
-    saveLabel.grid(row = 3, column = 1, pady=(10, 0))
-    saveCheck.grid(row = 4, column = 1)
-    saveresCheck.grid(row = 5, column = 1)
-    savehtmlCheck.grid(row = 6, column = 1)
-
-    graphicLabel.grid(row = 7, column = 0, pady=(10, 0))
-    graphicCheck.grid(row = 8, column = 0)
-    graphicresCheck.grid(row = 9, column = 0 )
-    dynamicCheck.grid(row = 10, column = 0)
+    exitButton.grid(row=100, column=0)
+    okButton.grid(row=100, column=1)
 
 
-    fileLabel.grid()
-    fileEntry.grid()
-    fileButton.grid()
+    genLabel.grid(row = 10, column = 0, pady=(10, 0))
+    handgenCheck.grid(row = 11, column = 0)
+    textgenCheck.grid(row = 12, column = 0)
+    randomgenCheck.grid(row = 13, column = 0)
+
+    saveLabel.grid(row = 10, column = 1, pady=(10, 0))
+    saveCheck.grid(row = 11, column = 1)
+    saveresCheck.grid(row = 12, column = 1)
+    savehtmlCheck.grid(row = 13, column = 1)
+
+    widthLabel.grid(row=20, column=0, pady=(10, 0))
+    widthEntry.grid(row=20, column=1, pady=(10, 0))
+    heightLabel.grid(row=21, column=0)
+    heightEntry.grid(row=21, column=1)
+
+    fileLabel.grid(row=22, column=0, padx=(10,0))
+    fileEntry.grid(row=22, column=1)
+    fileButton.grid(row=22, column=2)
+
+    graphicLabel.grid(row = 30, column = 0, pady=(10, 0))
+    graphicCheck.grid(row = 31, column = 0)
+    graphicresCheck.grid(row = 32, column = 0 )
+    dynamicCheck.grid(row = 33, column = 0)
+
 
     winset.mainloop()
     return (width.get(), height.get(), filename.get(), varGen.get(), 
