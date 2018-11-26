@@ -19,17 +19,21 @@ Uses:
 from graphical_maze import * #pylint: disable=W0614
 from maze import Maze, CreationError
 from tkinter import * #pylint: disable=W0614
+from tkinter import filedialog
 from functools import partial
+import os
 
 SETUP_WIDTH = 800
 SETUP_HEIGHT = 600
+
+global filename # global variable
 
 def toggle_check(elems):
     """
     Toggles the state of a Tkinter item on the window
 
     :param elems: (list) a list of the items to toggle
-    :side effect: sets the state of the checkButtons to disable or normal
+    :side effect: sets the state of the objects to `disable` or `normal`
     :return: None
     """
     for elem in elems:
@@ -37,6 +41,46 @@ def toggle_check(elems):
             elem["state"] = 'disabled'
         else:
             elem["state"] = "normal"
+
+def toggle_state_on(elems):
+    """
+    toggles on the state of a Tkinter item on the window
+
+    :param elems: (list) a list of items to activate
+    :side effect: sets the state of the objects to `normal`
+    :return: None
+    """
+    for elem in elems:
+        elem["state"] = "normal"
+
+def toggle_state_off(elems):
+    """
+    toggles off the state of a Tkinter item on the window
+
+    :param elems: (list) a list of items to activate
+    :side effect: sets the state of the objects to `disabled`
+    :return: None
+    """
+    for elem in elems:
+        elem["state"] = "disabled"
+
+def strip_filename(c):
+    """
+    """
+    c = c.lstrip("<_io.TextIOWrapper name='")
+    c = c.rstrip("' mode='r' encoding='UTF-8'>")
+    return c
+
+def askfile():
+    """
+    asks the user for a file and stores the result in filename
+    """
+    global filename
+    print("test")
+    filename.set((filedialog.askopenfile(initialdir = os.getcwd(), title = "Select a txt file", filetypes = (("text file","*.txt"),("all files","*.*")))))
+    filename.set(strip_filename(filename.get()))
+    if filename.get() != None:
+        print("This file has been selected", filename.get())
 
 
 def setup_window():
@@ -53,15 +97,20 @@ def setup_window():
     heightLabel = Label(winset, text="Height of the maze (integer)")
     width = StringVar(winset)
     height = StringVar(winset)
-    widthEntry = Entry(winset, textvariable=width)
-    heightEntry = Entry(winset, textvariable=height)
+    widthEntry = Entry(winset, textvariable=width, state="disabled")
+    heightEntry = Entry(winset, textvariable=height, state="disabled")
+    fileLabel = Label(winset, text="Generate from which file ? ")
+    global filename
+    filename = StringVar(winset)
+    fileEntry = Entry(winset, textvariable=filename, state="normal")
+    fileButton = Button(winset, text="Browse", command=askfile)
 
     genLabel = Label(winset, text="Generation Options (Chose only one)")
     varGen = IntVar()
     varGen.set(2)
-    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation")
-    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file")
-    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly")
+    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation", command=partial(toggle_state_on, [widthEntry, heightEntry]))
+    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggle_state_off, [widthEntry, heightEntry]))
+    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggle_state_on, [widthEntry, heightEntry]))
 
     saveLabel = Label(winset, text="Save Options")
     is_save = IntVar(winset, 1)
@@ -104,8 +153,14 @@ def setup_window():
     dynamicCheck.grid(row = 10, column = 0)
 
 
-    winset.mainloop()
+    fileLabel.grid()
+    fileEntry.grid()
+    fileButton.grid()
 
+    winset.mainloop()
+    return (width.get(), height.get(), filename.get(), varGen.get(), 
+            is_save.get(), is_saveres.get(), is_savehtml.get(),
+            is_graphic.get(), is_graphicres.get(), is_dynamic.get())
 
 def main(maze):
     maze_width = maze.get_width()
@@ -119,12 +174,18 @@ def main(maze):
     draw_grid(can, maze_width, maze_height) 
     setup_wall(can, maze)
     win.mainloop()
+
+def new_main(width, height, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic):
+    pass
+
     
 if __name__ == '__main__':
     # We shall parse command line arguments here
     # HERE We shall build a maze according to some arguments we have passed in the command line
 
-    setup_window()
+    setup_var = setup_window()
+    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
+    print(setup_var)
 
-    maze = Maze().build_maze_from_text("../Test/TestMaze/maze_20_20_0.txt") #DEBUG
+    maze = Maze().build_maze_from_text(filepath) #DEBUG
     main(maze)
