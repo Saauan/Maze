@@ -212,7 +212,7 @@ class Maze():
         :CU: the maze self has to be already generated.
         """
         if not self.get_square(0,0).is_surrounded():
-            with open("{:s}.txt".format(filename), "w") as mazeModel :
+            with open("{:s}".format(filename), "w") as mazeModel :
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
         else:
             raise CreationError("The Maze isn't generated, you can't write it in a text file.")
