@@ -96,9 +96,11 @@ def setup_window():
     widthLabel = Label(winset, text="Width of the maze (integer)")
     heightLabel = Label(winset, text="Height of the maze (integer)")
     width = StringVar(winset)
+    width.set("20")
     height = StringVar(winset)
-    widthEntry = Entry(winset, textvariable=width, state="disabled")
-    heightEntry = Entry(winset, textvariable=height, state="disabled")
+    height.set("20")
+    widthEntry = Entry(winset, textvariable=width, state="normal")
+    heightEntry = Entry(winset, textvariable=height, state="normal")
     fileLabel = Label(winset, text="Generate from which file ? ")
     global filename
     filename = StringVar(winset)
@@ -129,10 +131,9 @@ def setup_window():
     graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(toggle_check, [graphicresCheck, dynamicCheck]))
 
 
-    title.grid(row = 0, column = 0, padx=10) # Positions the label in the grid
+    title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
     exitButton.grid(row=100, column=0)
     okButton.grid(row=100, column=1)
-
 
     genLabel.grid(row = 10, column = 0, pady=(10, 0))
     handgenCheck.grid(row = 11, column = 0)
@@ -164,21 +165,46 @@ def setup_window():
             is_save.get(), is_saveres.get(), is_savehtml.get(),
             is_graphic.get(), is_graphicres.get(), is_dynamic.get())
 
-def main(maze):
-    maze_width = maze.get_width()
-    maze_height = maze.get_height()
-    win = Tk() # Creates a window object
-    win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
-    can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
-    can.bind('<Button-1>',
-             lambda event: draw_circle(can, event))
-    can.pack() # Allows the canvas to be handled as grid and columns
-    draw_grid(can, maze_width, maze_height) 
-    setup_wall(can, maze)
-    win.mainloop()
 
-def new_main(width, height, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic):
-    pass
+def main(width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic):
+    """
+    """
+    try:
+        width = int(width)
+        height = int(height)
+    except TypeError:
+        raise TypeError("The width and height are not of the correct type !")
+
+    if varGen == 1:
+        maze = Maze().build_maze_from_text(filepath)
+        width = maze.get_width()
+        height = maze.get_height()
+    elif varGen == 2:
+        maze = Maze().random_generation(width, height)
+    else:
+        # maze = Maze.hand_generation()
+        pass
+
+    if is_save:
+        pass
+    if is_saveres:
+        pass
+    if is_savehtml:
+        pass
+
+    if is_graphic:
+        win = Tk() # Creates a window object
+        win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
+        can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
+        can.bind('<Button-1>',
+                lambda event: draw_circle(can, event))
+        can.pack() # Allows the canvas to be handled as grid and columns
+        draw_grid(can, width, height) 
+        setup_wall(can, maze)
+        if is_graphicres:
+            if is_dynamic:
+                pass
+        win.mainloop()
 
     
 if __name__ == '__main__':
@@ -187,7 +213,5 @@ if __name__ == '__main__':
 
     setup_var = setup_window()
     width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
-    print(setup_var)
-
-    maze = Maze().build_maze_from_text(filepath) #DEBUG
-    main(maze)
+    print(*setup_var)
+    main(*setup_var)
