@@ -30,7 +30,7 @@ SAVE_PATH = "../mazes/"
 global filename # global variable
 
 ####################
-# WINDOW FUNCTIONS #
+# SETUP FUNCTIONS #
 ####################
 
 def invert_state(elems):
@@ -249,18 +249,22 @@ def check_if_setup_correct(win, width, height):
         warningLabel.grid()
         warningOkButton.grid()
 
+#########################
+# GRAPHICMAZE FUNCTIONS #
+#########################
+
 def restart(win, setup_var):
     win.destroy()
     main(setup_var)
 
 def setup_buttons(win, setup_var):
     """
+    Adds buttons to the graphical_maze
     """
     restartButton = Button(win, text="Restart", command=partial(restart, win, setup_var))
     restartButton.pack(side="left")
     quitButton = Button(win, text="Quit", command=win.destroy)
     quitButton.pack(side="left")
-
 
 ##################
 # MAIN FUNCTIONS #
@@ -271,6 +275,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     """
     Opens a window for the user to input parameters and then returns those parameters
 
+    :param: the default values of the setup_window (see the return section)
     :side effect: Opens a Tkinter window on which the user has to input the parameters of the program
     :return: The function returns 10 values in a tuple listed below:
         - (int) The width of the maze
@@ -407,14 +412,16 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var):
     """
     width = maze.get_width()
     height = maze.get_height()
+    adjusted_can_width = CAN_WIDTH//40*width
+    adjusted_can_height = CAN_HEIGHT//40*height
     win = Tk() # Creates a window object
     win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
-    can = Canvas(win, bg=BG_COLOR, width=CAN_WIDTH, height=CAN_HEIGHT)
+    can = Canvas(win, bg=BG_COLOR, width=adjusted_can_width, height=adjusted_can_height)
     can.bind('<Button-1>',
             lambda event: draw_circle(can, event))
     can.pack() # Allows the canvas to be handled as grid and columns
-    draw_grid(can, width, height) 
-    setup_wall(can, maze)
+    draw_grid(can, width, height, can_width=adjusted_can_width, can_height=adjusted_can_height) 
+    setup_wall(can, maze, can_width=adjusted_can_width, can_height=adjusted_can_height)
     setup_buttons(win, setup_var)
     if is_graphicres:
         if is_dynamic:
