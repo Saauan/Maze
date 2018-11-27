@@ -151,7 +151,7 @@ def toggle2(widthEntry, heightEntry, fileEntry, fileButton):
     toggle_state_on([widthEntry, heightEntry])
     toggle_state_off([fileEntry, fileButton])
 
-def setup_winentries(winset):
+def setup_winentries(winset, default_width, default_height, default_path):
     """
     Returns the entries items used for the setup_window
 
@@ -162,19 +162,20 @@ def setup_winentries(winset):
     widthLabel = Label(winset, text="Width of the maze (integer)")
     heightLabel = Label(winset, text="Height of the maze (integer)")
     width = StringVar(winset)
-    width.set("20")
+    width.set(str(default_width))
     height = StringVar(winset)
-    height.set("20")
+    height.set(str(default_height))
     widthEntry = Entry(winset, textvariable=width, state="normal")
     heightEntry = Entry(winset, textvariable=height, state="normal")
     fileLabel = Label(winset, text="Generate from which file ? ")
     global filename
     filename = StringVar(winset)
+    filename.set(default_path)
     fileEntry = Entry(winset, textvariable=filename, state="disabled")
     fileButton = Button(winset, text="Browse", command=askfile, state="disabled")
     return widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton
 
-def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton):
+def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default_gen):
     """
     Returns the generation items used for the setup_window
 
@@ -184,7 +185,7 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton):
     """
     genLabel = Label(winset, text="Generation Options (Chose only one)")
     varGen = IntVar()
-    varGen.set(2)
+    varGen.set(default_gen)
 
     # When handgen or randomgen is selected, the width and height entries will be activated, and the file entry and button are disabled
     # When texgen is selected, the reverse operation is done
@@ -194,7 +195,7 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton):
 
     return genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck
 
-def setup_winsave(winset):
+def setup_winsave(winset, default_save, default_saveres, default_savehtml):
     """
     Returns the save items used for the setup_window
 
@@ -203,16 +204,16 @@ def setup_winsave(winset):
     TODO
     """
     saveLabel = Label(winset, text="Save Options")
-    is_save = IntVar(winset, 1)
+    is_save = IntVar(winset, default_save)
     saveCheck = Checkbutton(winset, variable= is_save, text="Save into a file")
-    is_saveres = IntVar(winset, 0)
+    is_saveres = IntVar(winset, default_saveres)
     saveresCheck = Checkbutton(winset, variable= is_saveres, text="Save into a file with the resolution")
-    is_savehtml = IntVar(winset, 0)
+    is_savehtml = IntVar(winset, default_savehtml)
     savehtmlCheck = Checkbutton(winset, variable= is_savehtml, text="Save into a html file")
 
     return saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
 
-def setup_wingraphic(winset):
+def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic):
     """
     Returns the graphic items used for the setup_window
 
@@ -221,11 +222,11 @@ def setup_wingraphic(winset):
     TODO
     """
     graphicLabel = Label(winset, text="Graphic Options")
-    is_graphicres = IntVar(winset, 1)
+    is_graphicres = IntVar(winset, default_graphicres)
     graphicresCheck = Checkbutton(winset, variable=is_graphicres, text="Display the resolution on the maze")
-    is_dynamic = IntVar(winset, 1)
+    is_dynamic = IntVar(winset, default_graphicdynamic)
     dynamicCheck = Checkbutton(winset, variable=is_dynamic, text="Display the resolution dynamically")
-    is_graphic = IntVar(winset, 1)
+    is_graphic = IntVar(winset, default_graphic)
     graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
 
     return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck
@@ -248,11 +249,25 @@ def check_if_setup_correct(win, width, height):
         warningLabel.grid()
         warningOkButton.grid()
 
+def restart(win, setup_var):
+    win.destroy()
+    main(setup_var)
+
+def setup_buttons(win, setup_var):
+    """
+    """
+    restartButton = Button(win, text="Restart", command=partial(restart, win, setup_var))
+    restartButton.pack(side="left")
+    quitButton = Button(win, text="Quit", command=win.destroy)
+    quitButton.pack(side="left")
+
+
 ##################
 # MAIN FUNCTIONS #
 ##################
 
-def setup_window():
+def setup_window(default_width=20, default_height=20, default_path="", default_gen=2, default_save=1, default_saveres=0, 
+                 default_savehtml=0, default_graphic=1, default_graphicres=1, default_graphicdynamic=1):
     """
     Opens a window for the user to input parameters and then returns those parameters
 
@@ -281,19 +296,19 @@ def setup_window():
     okButton = Button(winset, text="OK")
 
     # Entries (width, height and filepath) setup
-    entries_var = setup_winentries(winset)
+    entries_var = setup_winentries(winset, default_width, default_height, default_path)
     widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton = entries_var
 
     # Generation setup
-    gen_var = setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton)
+    gen_var = setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default_gen)
     genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck = gen_var
 
     # Save setup
-    save_var = setup_winsave(winset)
+    save_var = setup_winsave(winset, default_save, default_saveres, default_savehtml)
     saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck = save_var
 
     # Graphic setup
-    graphic_var = setup_wingraphic(winset)
+    graphic_var = setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic)
     graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck = graphic_var
 
     okButton["command"] = partial(check_if_setup_correct, winset, width, height)
@@ -387,7 +402,7 @@ def parse_save(maze, is_save, is_saveres, is_savehtml):
     if is_savehtml:
         maze.picture_representation(SAVE_PATH+"maze_html.html")
 
-def graph_disp(maze, is_graphicres, is_dynamic):
+def graph_disp(maze, is_graphicres, is_dynamic, setup_var):
     """
     """
     width = maze.get_width()
@@ -400,6 +415,7 @@ def graph_disp(maze, is_graphicres, is_dynamic):
     can.pack() # Allows the canvas to be handled as grid and columns
     draw_grid(can, width, height) 
     setup_wall(can, maze)
+    setup_buttons(win, setup_var)
     if is_graphicres:
         if is_dynamic:
             pass
@@ -409,11 +425,11 @@ def graph_disp(maze, is_graphicres, is_dynamic):
             # Display all the resolution in one go
     win.mainloop()
 
-def main():
+def main(old_var=()):
     """
     """
     # We get all the setup variable from the user using a GUI
-    setup_var = setup_window()
+    setup_var = setup_window(*old_var)
     width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
 
     # We generate the maze
@@ -424,7 +440,7 @@ def main():
 
     # Displays the maze
     if is_graphic:
-        graph_disp(maze, is_graphicres, is_dynamic)
+        graph_disp(maze, is_graphicres, is_dynamic, setup_var)
 
     
 if __name__ == '__main__':
