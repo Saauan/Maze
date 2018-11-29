@@ -35,7 +35,7 @@ SPEED_VALUES = {"Very Slow": 1,
                 "Extremely Fast" : 0.01,
                 "GOTTA GO FAST M8" : 0.001}
 
-global filename # global variable
+global g_filename # global variable
 global is_disp_res # True if the res is currently displayed, False otherwise
 is_disp_res = False
 
@@ -45,12 +45,12 @@ is_disp_res = False
 
 def invert_state(elems):
     """
-    Toggles the state of a Tkinter item on the window
+    Toggles the state of a Tkinter Widget on the window
 
-    :param elems: (list) a list of the items to toggle
-    :side effect: Inverts the state of the items from `disabled` to `normal` and vice-versa
+    :param elems: (list) a list of the Widget to toggle
+    :side effect: Inverts the state of the Widgets from `disabled` to `normal` and vice-versa
     :return: None
-    :UC: items of elems must have a state attribute
+    :UC: None
     :Examples:
 
     >>> root = Tk()
@@ -72,12 +72,12 @@ def invert_state(elems):
 
 def toggle_state_on(elems):
     """
-    Toggles on the state of a Tkinter item on the window
+    Toggles on the state of a Tkinter Widget on the window
 
-    :param elems: (list) a list of items to activate
-    :side effect: sets the state of the objects to `normal`
+    :param elems: (list) a list of Widget to activate
+    :side effect: sets the state of the Widget to `normal`
     :return: None
-    :UC: items of elems must have a state atribute
+    :UC: None
     :Examples:
 
     >>> root = Tk()
@@ -96,12 +96,12 @@ def toggle_state_on(elems):
 
 def toggle_state_off(elems):
     """
-    Toggles off the state of a Tkinter item on the window
+    Toggles off the state of a Tkinter Widget on the window
 
-    :param elems: (list) a list of items to activate
-    :side effect: sets the state of the objects to `disabled`
+    :param elems: (list) a list of Widgets to activate
+    :side effect: sets the state of the Widget to `disabled`
     :return: None
-    :UC: items of elems must have a state attributes
+    :UC: Widget of elems must have a state attributes
     :Examples:
 
     >>> root = Tk()
@@ -118,48 +118,44 @@ def toggle_state_off(elems):
     for elem in elems:
         elem["state"] = "disabled"
 
-def strip_filename(c):
-    """
-    returns just a path of a file using a string coming from the filedialog.askopen() method
-
-    :param c: (str)
-    :return: (str) the path of a file
-    :UC: c MUST be the return of filedialog.askopenfile()
-    :Example:
-
-    >>> strip_filename("<_io.TextIOWrapper name='/TESTPATH' mode='r' encoding='UTF-8'>")
-    '/TESTPATH'
-    """
-    c = c.lstrip("<_io.TextIOWrapper name='")
-    c = c.rstrip("' mode='r' encoding='UTF-8'>")
-    return c
-
 def askfile():
     """
-    asks the user for a file and stores the result in filename
+    Asks the user for a file and stores the result in the global variable `g_filename`
     
-    :return: (str) it has the form of "<_io.TextIOWrapper name='/TESTPATH' mode='r' encoding='UTF-8'>"
+    :return: (str) an absolute path for a file chosen by the user
+    :UC: `g_filename` must be a global variable
     """
-    global filename
-    print("test")
-    filename.set((filedialog.askopenfile(initialdir = os.getcwd(), title = "Select a txt file", filetypes = (("text file","*.txt"),("all files","*.*")))))
-    filename.set(strip_filename(filename.get()))
-    if filename.get() != None:
-        print("This file has been selected", filename.get())
+    global g_filename
+    temp_filename = str((filedialog.askopenfile(initialdir = os.getcwd(), title = "Select a txt file", filetypes = (("text file","*.txt"),("all files","*.*")))))
+    temp_filename = temp_filename.lstrip("<_io.TextIOWrapper name='") #pylint: disable=E1310
+    i = temp_filename.index(" mode='r'")
+    g_filename.set(temp_filename[:i-1])
 
-def toggle1(widthEntry, heightEntry, fileEntry, fileButton):
-    """
-    toggles off widthEntry, heightEntry, and toggles on fileEntry and fileButton
-    """
-    toggle_state_off([widthEntry, heightEntry])
-    toggle_state_on([fileEntry, fileButton])
+    # g_filename.set(strip_name(temp_filename, "<_io.TextIOWrapper name='", "' mode='r' encoding='UTF-8'>"))
+    if g_filename.get() != None:
+        print("This file has been selected", g_filename.get())
 
-def toggle2(widthEntry, heightEntry, fileEntry, fileButton):
+def toggleonoff(elemon, elemoff):
     """
-    toggles on widthEntry, heightEntry, and toggles off fileEntry and fileButton
+    Sets the state of the Widgets of elemoff to `disabled` and of the elements of elemon to `normal`
+    
+    :param elemon: (tuple) tuple of tkinter Widgets to make normal
+    :param elemoff: (tuple) tuple of tkinter Widgets to disable
+    :side effect: See the description above
+    :return: None
+    :UC: None
+    :Example:
+
+    >>> someObject = Button(root, state="normal")
+    >>> anotherObject = Entry(root, textvariable="test", state="disabled")
+    >>> toggleonoff([anotherObject], [someObject])
+    >>> someObject["state"] == "disabled"
+    True
+    >>> anotherObject["state"] == "normal"
+    True
     """
-    toggle_state_on([widthEntry, heightEntry])
-    toggle_state_off([fileEntry, fileButton])
+    toggle_state_on(elemon)
+    toggle_state_off(elemoff)
 
 def setup_winentries(winset, default_width, default_height, default_path):
     """
@@ -169,21 +165,27 @@ def setup_winentries(winset, default_width, default_height, default_path):
     :return:
     TODO
     """
+    # Maze's width
     widthLabel = Label(winset, text="Width of the maze (integer)")
-    heightLabel = Label(winset, text="Height of the maze (integer)")
     width = StringVar(winset)
     width.set(str(default_width))
+    widthEntry = Entry(winset, textvariable=width, state="normal")
+
+    # Maze's height
+    heightLabel = Label(winset, text="Height of the maze (integer)")
     height = StringVar(winset)
     height.set(str(default_height))
-    widthEntry = Entry(winset, textvariable=width, state="normal")
     heightEntry = Entry(winset, textvariable=height, state="normal")
+
+    # Maze's base filename
+    global g_filename
     fileLabel = Label(winset, text="Generate from which file ? ")
-    global filename
-    filename = StringVar(winset)
-    filename.set(default_path)
-    fileEntry = Entry(winset, textvariable=filename, state="disabled")
+    g_filename = StringVar(winset)
+    g_filename.set(default_path)
+    fileEntry = Entry(winset, textvariable=g_filename, state="disabled")
     fileButton = Button(winset, text="Browse", command=askfile, state="disabled")
-    return widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton
+
+    return widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, g_filename, fileEntry, fileButton
 
 def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default_gen):
     """
@@ -199,9 +201,9 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default
 
     # When handgen or randomgen is selected, the width and height entries will be activated, and the file entry and button are disabled
     # When texgen is selected, the reverse operation is done
-    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation", command=partial(toggle2, widthEntry, heightEntry, fileEntry, fileButton))
-    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggle1, widthEntry, heightEntry, fileEntry, fileButton))
-    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggle2, widthEntry, heightEntry, fileEntry, fileButton))
+    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation [WIP]", command=partial(toggleonoff, (widthEntry, heightEntry), (fileEntry, fileButton)))
+    textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggleonoff, (fileEntry, fileButton), (widthEntry, heightEntry)))
+    randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggleonoff, (widthEntry, heightEntry), (fileEntry, fileButton)))
 
     return genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck
 
@@ -214,10 +216,16 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
     TODO
     """
     saveLabel = Label(winset, text="Save Options")
+
+    # Save in file
     is_save = IntVar(winset, default_save)
     saveCheck = Checkbutton(winset, variable= is_save, text="Save into a file")
+
+    # Save resolution in file
     is_saveres = IntVar(winset, default_saveres)
-    saveresCheck = Checkbutton(winset, variable= is_saveres, text="Save into a file with the resolution")
+    saveresCheck = Checkbutton(winset, variable= is_saveres, text="Save into a file with the resolution [WIP]")
+
+    # Save in HTML file
     is_savehtml = IntVar(winset, default_savehtml)
     savehtmlCheck = Checkbutton(winset, variable= is_savehtml, text="Save into a html file")
 
@@ -232,12 +240,20 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
     TODO
     """
     graphicLabel = Label(winset, text="Graphic Options")
+
+    # Graphic resolution
     is_graphicres = IntVar(winset, default_graphicres)
     graphicresCheck = Checkbutton(winset, variable=is_graphicres, text="Display the resolution on the maze")
+
+    # Dynamic resolution
     is_dynamic = IntVar(winset, default_graphicdynamic)
     dynamicCheck = Checkbutton(winset, variable=is_dynamic, text="Display the resolution dynamically")
+
+    # Displaying the Maze
     is_graphic = IntVar(winset, default_graphic)
     graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
+
+    # Speed of dynamic resolution
     speedLabel = Label(winset, text="Speed for dynamic")
     varSpeed = StringVar(winset, default_speed)
     speedSpinbox = Spinbox(winset, values=(list(SPEED_VALUES.keys())), wrap="True", textvariable=varSpeed)
@@ -246,17 +262,41 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
 
     return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox
 
-def check_if_setup_correct(winset, width, height):
+def is_convertible_to_integer(a):
     """
-    Checks if the inputs the user has types are correct
-    If it is correct, the window is destroyed, else, a warning is displayed
-    To be correct, width.get() and height.get() must be convertible to integer
+    Checks if a (any type) can be converted to an integer, if it can, returns True, otherwise, False
+
+    :Examples:
+    >>> is_convertible_to_integer("10")
+    True
+    >>> is_convertible_to_integer([10])
+    False
+    >>> is_convertible_to_integer("k")
+    False
     """
     try:
-        int(width.get())
-        int(height.get())
-        winset.destroy()
-    except:
+        int(a)
+        return True
+    except TypeError:
+        return False
+
+def exit_setup(winset, width, height, varGen, g_filename):
+    """
+    Makes the finals checks before closing the setup window
+    Checks if the width and height are integers
+    Checks if the file the user entered exists
+
+    :param winset: (Tkinter Window)
+    :param width: (varInt)
+    :param height: (varInt)
+    :param varGen: (varInt)
+    :param g_filename: (varStr)
+    :side effect:
+    :return: None
+    :UC: 
+    """
+    # Checking for the width and height
+    if not all(map(is_convertible_to_integer,(width.get(), height.get()))) and varGen.get() in {0,2}:
         winwarning = Tk()
         winwarning.title("Warning")
         warningLabel = Label(winwarning, text="The values you have entered are not correct, please try again. (Width and height must be integer)")
@@ -264,11 +304,35 @@ def check_if_setup_correct(winset, width, height):
         warningLabel.grid()
         warningOkButton.grid()
 
+    # Checking for the existence of the file 
+    elif not os.path.exists(g_filename.get()) and varGen.get() == 1:
+        winwarning = Tk()
+        winwarning.title("Warning")
+        warningLabel = Label(winwarning, text="The path you entered for the file is not a valid path")
+        warningOkButton = Button(winwarning, text="OK", command=winwarning.destroy)
+        warningLabel.grid()
+        warningOkButton.grid()
+
+    # Everything's okay, we can close the setup window
+    # TODO CHECK IF THE FILE IS ALSO A VALID MAZE or, open a window saying there was an error
+    else:
+        winset.destroy()
+        
+
 #########################
 # GRAPHICMAZE FUNCTIONS #
 #########################
 
 def restart(win, setup_var):
+    """
+    Restarts the program by closing the maze's window and reseting the setup values to the last ones (not necessarly the default ones)
+
+    :param win: (Tkinter Window)
+    :param setup_var: (tuple) a tuple with all the setup variables (see setup_window)
+    :side effect: restarts the program
+    :return: None
+    :UC: setup_var must have as many elements as there are variables in setup_window
+    """
     win.destroy()
     main(setup_var)
 
@@ -278,11 +342,10 @@ def toggle_graphic_res(can, maze, can_width, can_height):
     """
     width = maze.get_width()
     height = maze.get_height()
-    if not maze.resolution_trace:
-        maze.resolution_path()
+    trace = maze.resolution_path(trace=True)
     global is_disp_res
     if is_disp_res:
-        for (x,y), state in maze.resolution_trace:
+        for (x,y), state in trace:
                 if maze.get_square(x, y).get_state() == "crossed":
                     remove_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
                 elif maze.get_square(x,y).get_state() == "wrong":
@@ -291,7 +354,7 @@ def toggle_graphic_res(can, maze, can_width, can_height):
         is_disp_res = False
 
     else:
-        for (x,y), state in maze.resolution_trace:
+        for (x,y), state in trace:
                 if maze.get_square(x, y).get_state() == "crossed":
                     set_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
                 elif maze.get_square(x,y).get_state() == "wrong":
@@ -344,7 +407,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
 
     # Entries (width, height and filepath) setup
     entries_var = setup_winentries(winset, default_width, default_height, default_path)
-    widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, filename, fileEntry, fileButton = entries_var
+    widthLabel, heightLabel, width, height, widthEntry, heightEntry, fileLabel, g_filename, fileEntry, fileButton = entries_var
 
     # Generation setup
     gen_var = setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default_gen)
@@ -358,7 +421,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     graphic_var = setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic, default_speed)
     graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox = graphic_var
 
-    okButton["command"] = partial(check_if_setup_correct, winset, width, height)
+    okButton["command"] = partial(exit_setup, winset, width, height, varGen, g_filename)
 
     # Placement
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
@@ -392,7 +455,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     speedSpinbox.grid(row=34, column=1)
     winset.mainloop()
 
-    return (int(width.get()), int(height.get()), filename.get(), varGen.get(), 
+    return (int(width.get()), int(height.get()), g_filename.get(), varGen.get(), 
             is_save.get(), is_saveres.get(), is_savehtml.get(),
             is_graphic.get(), is_graphicres.get(), is_dynamic.get(), varSpeed.get())
 
@@ -463,15 +526,14 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed):
         adjusted_can_height = CAN_HEIGHT
     #TODO Adjust the window according the the main screen
     win = Tk() # Creates a window object
-    win.title(random_word('../ressources/anagrams.txt'))
+    # win.title(random_word('../ressources/anagrams.txt'))
     can = create_canvas(win, adjusted_can_width, adjusted_can_height)
 
     draw_grid(can, width, height, can_width=adjusted_can_width, can_height=adjusted_can_height) 
     setup_wall(can, maze, can_width=adjusted_can_width, can_height=adjusted_can_height)
     setup_buttons(win, setup_var)
     if is_graphicres:
-        maze.resolution_path(trace=True)
-        trace = maze.resolution_trace
+        trace = maze.resolution_path(trace=True)
         if is_dynamic:
             pass
             # Display all the resolution progressively
@@ -494,7 +556,6 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed):
     toggleresButton = Button(win, text="Toggle Resolution [WIP]",
                             command=partial(toggle_graphic_res, can, maze, adjusted_can_width, adjusted_can_height))
     toggleresButton.pack(side="left")
-
     win.mainloop()
 
 def main(old_var=()):
@@ -503,10 +564,9 @@ def main(old_var=()):
     # We get all the setup variable from the user using a GUI
     setup_var = setup_window(*old_var)
     width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic, speed = setup_var
-
     # We generate the maze
     maze = parse_gen(width, height, filepath, varGen)
-
+    time.sleep(0.5)
     # If we must, we save it in files
     parse_save(maze, is_save, is_saveres, is_savehtml)
 
