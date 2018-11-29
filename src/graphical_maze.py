@@ -79,7 +79,7 @@ def remove_wall(canvas, x, y, side, width, height, can_width=CAN_WIDTH, can_heig
     if side == "Top":
         canvas.create_line(x * DX, y * DY, (x+1) * DX, y * DY, fill=BG_COLOR, width=1)
 
-def setup_wall(canvas, maze):
+def setup_wall(canvas, maze, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
     """
     removes all the walls of the graphical maze according to the ones on the maze object
 
@@ -95,9 +95,9 @@ def setup_wall(canvas, maze):
         for x in range(width):
             cell = maze.get_square(x, y)
             if not cell.has_left_rampart():
-                remove_wall(canvas, x, y, "Left", width, height)
+                remove_wall(canvas, x, y, "Left", width, height, can_width, can_height)
             if not cell.has_top_rampart():
-                remove_wall(canvas, x, y, "Top", width, height)
+                remove_wall(canvas, x, y, "Top", width, height, can_width, can_height)
 
 def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
     """
