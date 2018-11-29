@@ -15,6 +15,7 @@ from square import Square
 import stack
 import random
 
+ENCODING = "UTF-8"
 
 class CreationError(Exception):
     """
@@ -75,6 +76,7 @@ class Maze():
         self.__x0, self.__y0 = x0, y0
         self.__width, self.__height = width, height
         self.maze = [[Square(X,Y) for Y in range(height)] for X in range(width)]
+        self.__resolution = 0
         
     def get_height(self):
         """
@@ -253,7 +255,7 @@ class Maze():
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :UC: the maze self has to be already generated.
         """
-        with open(filename, "w") as mazeModel :
+        with open(filename, "w", encoding=ENCODING) as mazeModel :
             mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
 
     def picture_representation(self, fichier, style_path=STYLE_PATH):
@@ -270,7 +272,7 @@ class Maze():
         H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
-        with open("{:s}".format(fichier), 'w') as output:
+        with open("{:s}".format(fichier), 'w', encoding=ENCODING) as output:
             _pict_rep_html_header(output, W, H, p, style_path)
             
             #First of all, we draw all the top ramparts of the first line and the left ramparts of the first column
@@ -307,7 +309,7 @@ class Maze():
                     neighbours.append((side, neighbour))
         return neighbours
         
-    def resolution_path(self, trace=False, talkative=False):
+    def __find_resolution_path(self, trace=False, talkative=False):
         """
         Returns to the user the list corresponding to the path from the beginning square until the finish square.
         
@@ -319,41 +321,45 @@ class Maze():
         :effect: Change the values of some squares' state of self
         :UC: self has to be already generated but not already resolved.
         """
-        try:
-            memoryPath, resolutionPath = stack.Stack(), [(self.__x0, self.__y0)] # We initiate a stack containing the last position & the list of the positions' solution.
-            actualSquare, finalSquare = self.get_square(self.__x0, self.__y0), self.get_square(self.get_width()-1, self.get_height()-1)
-            trace = [(actualSquare.get_coordinates(), "crossed")] # Trace  
-            finalSquare.state_modification("finish")
-            if talkative:
-                print("Starting at the position {0}.".format(actualSquare.get_coordinates()))
-    
-            while actualSquare.get_coordinates() != (self.get_width() - 1, self.get_height() - 1):
-                NEIGHBOURS = self.resolution_neighbours(actualSquare) # All neighbours which are neither 'wrong' nor 'crossed'
-                if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
-                    actualSquare.state_modification("wrong")
-                    trace.append((actualSquare.get_coordinates(), actualSquare.get_state())) # Trace
-                    actualSquare = memoryPath.pop() ; resolutionPath.pop()
-                    if talkative:
-                        print("Ugh, you just fell in a dead-end. Let's go back to the position {0}.".format(actualSquare.get_coordinates()))
-                    continue
-                
-                side, followingSquare = NEIGHBOURS[0] # We go in one direction depending on the possible NEIGHBOURS
-                memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
-                actualSquare.state_modification("crossed")
-                trace.append((actualSquare.get_coordinates(), actualSquare.get_state())) # Trace
-                actualSquare = followingSquare # Our initial position is now the neighbour chosen before
-                if talkative:
-                    print("Moving to the {:s} side... ".format(side) + "now arrived in the position {0}.".format(actualSquare.get_coordinates()))
-                resolutionPath.append(actualSquare.get_coordinates())
+        memoryPath, resolutionPath = stack.Stack(), [(self.__x0, self.__y0)] # We initiate a stack containing the last position & the list of the positions' solution.
+        actualSquare, finalSquare = self.get_square(self.__x0, self.__y0), self.get_square(self.get_width()-1, self.get_height()-1)
+        trace = [(actualSquare.get_coordinates(), "crossed")] # Trace  
+        finalSquare.state_modification("finish")
+        if talkative:
+            print("Starting at the position {0}.".format(actualSquare.get_coordinates()))
 
-            if trace:
-                self.resolution_trace = trace
+        while actualSquare.get_coordinates() != (self.get_width() - 1, self.get_height() - 1):
+            NEIGHBOURS = self.resolution_neighbours(actualSquare) # All neighbours which are neither 'wrong' nor 'crossed'
+            if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
+                actualSquare.state_modification("wrong")
+                trace.append((actualSquare.get_coordinates(), actualSquare.get_state())) # Trace
+                actualSquare = memoryPath.pop() ; resolutionPath.pop()
+                if talkative:
+                    print("Ugh, you just fell in a dead-end. Let's go back to the position {0}.".format(actualSquare.get_coordinates()))
+                continue
             
-            return resolutionPath
+            side, followingSquare = NEIGHBOURS[0] # We go in one direction depending on the possible NEIGHBOURS
+            memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
+            actualSquare.state_modification("crossed")
+            trace.append((actualSquare.get_coordinates(), actualSquare.get_state())) # Trace
+            actualSquare = followingSquare # Our initial position is now the neighbour chosen before
+            if talkative:
+                print("Moving to the {:s} side... ".format(side) + "now arrived in the position {0}.".format(actualSquare.get_coordinates()))
+            resolutionPath.append(actualSquare.get_coordinates())
+
+        if trace:
+            self.__resolution_trace = trace
         
-        except stack.StackEmptyError:
-            raise CreationError("Maze already resolved, can't resolve it again.")
+        self.__resolution = resolutionPath
         
+    def resolution_path(self, trace=False, talkative=False):
+        if not self.__resolution:
+            self.__find_resolution_path(trace, talkative)
+        if trace:
+            return self.__resolution_trace
+        return self.__resolution
+        
+
     @staticmethod
     def build_maze_from_text(filename):
         """
@@ -368,7 +374,7 @@ class Maze():
         :return: (Maze) - A maze built from the text file
         :UC: None
         """
-        with open(filename, "r") as instream:
+        with open(filename, "r", encoding=ENCODING) as instream:
             lines = []
             for line in instream.readlines():
                 lines.append(line.rstrip("\n"))
@@ -387,18 +393,14 @@ class Maze():
                     if i % 2 == 0: # We are on the "+" line.
                         x = j // 2
                         y = i // 2
-                        if y <= height - 1: # We are not on the bottom edge.
-                            maze.get_square(x,y).square_modification("Top", False)
-                        if y >= 2: # We are not on the top squares.
-                            maze.get_square(x, y-1).square_modification("Bottom", False)
+                        maze.get_square(x,y).square_modification("Top", False)
+                        maze.get_square(x,y-1).square_modification("Bottom", False)
 
                     elif j % 2 == 0: # We are on the "|" line and not inside a square.
                         x = j // 2
                         y = i // 2
-                        if x <= width -1: # We are not on the far right edge.
-                            maze.get_square(x, y).square_modification("Left", False)
-                        if x >= 2 : # We are not on the far left squares.
-                            maze.get_square(x-1, y).square_modification("Right", False)
+                        maze.get_square(x, y).square_modification("Left", False)
+                        maze.get_square(x-1, y).square_modification("Right", False)
         return maze
 
 if __name__ == '__main__':
