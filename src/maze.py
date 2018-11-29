@@ -9,6 +9,26 @@
 :date:  1/11/2018
 
 This module provides functions and a class for hand-maze's game's management.
+
+:Provides:
+
+* class CreationError
+* class Maze
+
+and methods
+
+* `get_height`
+* `get_width`
+* `get_square`
+* `neighbourhood`
+* `random_generation`
+* `hand_generation`
+* `text_representation`
+* `picture_representation`
+* `resolution_neighbours`
+* `resolution_path`
+* `build_maze_from_text`
+
 """
 
 from square import Square

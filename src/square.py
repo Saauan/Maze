@@ -10,6 +10,24 @@
 
 This module provides functions and a class for maze's squares management.
 
+:Provides:
+
+* class Square
+
+and methods
+
+* `has_left_rampart`
+* `has_top_rampart`
+* `has_right_rampart`
+* `has_bottom_rampart`
+* `has_common_rampart`
+* `is_surrounded`
+* `rampart_deletion`
+* `get_coordinates`
+* `get_state`
+* `get_ramparts`
+* `square_modification`
+* `state_modification`
 """
     
 class Square():
