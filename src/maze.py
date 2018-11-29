@@ -116,7 +116,7 @@ class Maze():
         :return: (Square) - the square of coordinates (x,y) in the game's grid
         :UC: 0 <= `x` < self.get_width() and 0 <= `y` < self.get_height() of the maze and `x` and `y` have to be positive integers
         """
-        assert 0 <= x < self.get_width() and 0 <= y < self.get_width(), "Your coordinates are out of the maze's boundaries."
+        assert 0 <= x < self.get_width() and 0 <= y < self.get_height(), "Your coordinates are out of the maze's boundaries."
         assert type(x) == int and type(y) == int, 'The x-coordinate & the y-coordinate of your square have to be positive integers'
         return self.maze[x][y]
     
@@ -227,23 +227,23 @@ class Maze():
         """
         assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
         maze = Maze(width, height)
-        try:
-            nbSquares, memoryPath = maze.get_width()*maze.get_height(), stack.Stack() # We initiate the total number of squares to check & a stack containing the last position
-            actualSquare, checkedSquares = maze.get_square(maze.__x0, maze.__y0), 1 # We keep in memory in actualSquare our position, the resolutionPath and the maze and in cpt the number of squares already checked
-                
-            while checkedSquares < nbSquares:
-                NEIGHBOURS = maze.neighbourhood(actualSquare)
-                if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
-                    actualSquare = memoryPath.pop()
-                    continue
-                side, followingSquare = random.choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
-                actualSquare.rampart_deletion(followingSquare, side) # We take down the rampart between our initial position and the chosen neighbour
-                memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
-                actualSquare = followingSquare # Our initial position is now the neighbour chosen before
-                checkedSquares += 1 # We increment the number of checked squares
-            return maze
-        except:
-            raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
+        # try:
+        nbSquares, memoryPath = maze.get_width()*maze.get_height(), stack.Stack() # We initiate the total number of squares to check & a stack containing the last position
+        actualSquare, checkedSquares = maze.get_square(maze.__x0, maze.__y0), 1 # We keep in memory in actualSquare our position, the resolutionPath and the maze and in cpt the number of squares already checked
+            
+        while checkedSquares < nbSquares:
+            NEIGHBOURS = maze.neighbourhood(actualSquare)
+            if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
+                actualSquare = memoryPath.pop()
+                continue
+            side, followingSquare = random.choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
+            actualSquare.rampart_deletion(followingSquare, side) # We take down the rampart between our initial position and the chosen neighbour
+            memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
+            actualSquare = followingSquare # Our initial position is now the neighbour chosen before
+            checkedSquares += 1 # We increment the number of checked squares
+        return maze
+        # except:
+        #     raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
 
  
     def text_representation(self, filename):
