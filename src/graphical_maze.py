@@ -22,7 +22,9 @@ from random import choice
 CAN_WIDTH = 800
 CAN_HEIGHT = 800
 BG_COLOR = 'black'
-GRID_COLOR = 'yellow'
+GRID_COLOR = 'medium blue'
+GOOD_CELL_COLOR = "yellow"
+BAD_CELL_COLOR = "crimson"
 
 
 def draw_circle(canvas, event):
@@ -99,7 +101,7 @@ def setup_wall(canvas, maze, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
             if not cell.has_top_rampart():
                 remove_wall(canvas, x, y, "Top", width, height, can_width, can_height)
 
-def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
+def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color = GOOD_CELL_COLOR):
     """
     draws a circle on the cell of coordinates (x,y)
 
@@ -111,9 +113,15 @@ def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_
     """
     DX = can_width // width 
     DY = can_height // height 
-    canvas.create_oval(x*DX*1.02, y*DY*0.98,
-                       (x+1)*DX*0.98, (y-1)*DY*1.02,
-                       fill = "red")
+    canvas.create_oval((x*DX)+5, (y+1)*DY-5,
+                       (x+1)*DX-5, (y)*DY+5,
+                       fill = fill_color)
+
+def remove_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BG_COLOR):
+    """
+    Removes a circle of the canvas by making its color the same as the background's
+    """
+    set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color = BG_COLOR)
     
 def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
     """
@@ -129,6 +137,6 @@ def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CA
     """
     DX = can_width // width # This is the width of a square
     DY = can_height // height # This is the height of a square
-    canvas.create_rectangle(x*DX+1, y*DY-1,
-                         (x+1)*DX-1, (y+1)*DY+1,
-                         fill = "gray")
+    canvas.create_rectangle(x*DX+5, y*DY+5,
+                         (x+1)*DX-5, (y+1)*DY-5,
+                         fill = BAD_CELL_COLOR)
