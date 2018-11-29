@@ -310,44 +310,47 @@ class Maze():
                     neighbours.append((side, neighbour))
         return neighbours
         
-    def resolution_path(self, more_path=False, talkative=False):
+    def resolution_path(self, trace=False, talkative=False):
         """
         Returns to the user the list corresponding to the path from the beginning square until the finish square.
         
         :param self: (Maze) - a fresh new maze
-        :param more_path: (bool) - if True, the function returns the path of all cells it went through (even the wrong ones). If False, it returns only the list of correct squares
+        :param trace: (bool) - if True, the function returns the path of all cells it went through (even the wrong ones). If False, it returns only the list of correct squares
         :param talkative: (bool) - True if we want to have more informations on the process of the function
         :return: (list(tuple(int, int))) A list of tuples of the coordinates of the resolution path in the correct order
-                 If more_path is set to True, return a tuple of two lists, with the second list being the path the function followed (see `more_path`)
+                 If trace is set to True, returns a the resolution (see above) and a list of tuples of coordinates and states, with the second list being the path the function followed (see `trace`)
         :effect: Change the values of some squares' state of self
         :UC: self has to be already generated but not already resolved.
         """
         try:
             memoryPath, resolutionPath = stack.Stack(), [(self.__x0, self.__y0)] # We initiate a stack containing the last position & the list of the positions' solution.
             actualSquare, finalSquare = self.get_square(self.__x0, self.__y0), self.get_square(self.get_width()-1, self.get_height()-1)
+            trace = [(actualSquare.get_coordinates(), "crossed")] # Trace  
             finalSquare.state_modification("finish")
             if talkative:
                 print("Starting at the position {0}.".format(actualSquare.get_coordinates()))
-            allPath = []
+    
             while actualSquare.get_coordinates() != (self.get_width() - 1, self.get_height() - 1):
                 NEIGHBOURS = self.resolution_neighbours(actualSquare) # All neighbours which are neither 'wrong' nor 'crossed'
-                allPath.append(actualSquare.get_coordinates)
                 if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
                     actualSquare.state_modification("wrong")
+                    trace.append((actualSquare.get_coordinates(), actualSquare.get_state())) # Trace
                     actualSquare = memoryPath.pop() ; resolutionPath.pop()
                     if talkative:
                         print("Ugh, you just fell in a dead-end. Let's go back to the position {0}.".format(actualSquare.get_coordinates()))
                     continue
                 
-                side, followingSquare = NEIGHBOURS[0] # We go randomly in one direction depending on the possible NEIGHBOURS
+                side, followingSquare = NEIGHBOURS[0] # We go in one direction depending on the possible NEIGHBOURS
                 memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
                 actualSquare.state_modification("crossed")
+                trace.append((actualSquare.get_coordinates(), actualSquare.get_state())) # Trace
                 actualSquare = followingSquare # Our initial position is now the neighbour chosen before
                 if talkative:
                     print("Moving to the {:s} side... ".format(side) + "now arrived in the position {0}.".format(actualSquare.get_coordinates()))
                 resolutionPath.append(actualSquare.get_coordinates())
-            if more_path:
-                return resolutionPath, allPath
+
+            if trace:
+                return resolutionPath, trace
             
             return resolutionPath
         
