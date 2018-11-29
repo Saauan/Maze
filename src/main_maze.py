@@ -257,6 +257,11 @@ def restart(win, setup_var):
     win.destroy()
     main(setup_var)
 
+def toggle_graphic_res():
+    """
+    """
+    pass
+
 def setup_buttons(win, setup_var):
     """
     Adds buttons to the graphical_maze
@@ -264,7 +269,9 @@ def setup_buttons(win, setup_var):
     restartButton = Button(win, text="Restart", command=partial(restart, win, setup_var))
     restartButton.pack(side="left")
     quitButton = Button(win, text="Quit", command=win.destroy)
-    quitButton.pack(side="left")
+    quitButton.pack(side="right")
+    toggleresButton = Button(win, text="Toggle Resolution [WIP]", command=toggle_graphic_res)
+    toggleresButton.pack(side="left")
 
 ##################
 # MAIN FUNCTIONS #
@@ -416,10 +423,20 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var):
     adjusted_can_height = CAN_HEIGHT//40*height
     win = Tk() # Creates a window object
     win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
+
     can = Canvas(win, bg=BG_COLOR, width=adjusted_can_width, height=adjusted_can_height)
     can.bind('<Button-1>',
             lambda event: draw_circle(can, event))
+
+    defilY = Scrollbar(win, orient="vertical", command=can.yview)
+    defilY.pack(side="right")
+    defilX = Scrollbar(win, orient="horizontal", command=can.xview)
+    defilX.pack(side="bottom")
+
+    can["yscrollcommand"] = defilY.set
+    can["xscrollcommand"] = defilX.set
     can.pack() # Allows the canvas to be handled as grid and columns
+
     draw_grid(can, width, height, can_width=adjusted_can_width, can_height=adjusted_can_height) 
     setup_wall(can, maze, can_width=adjusted_can_width, can_height=adjusted_can_height)
     setup_buttons(win, setup_var)
