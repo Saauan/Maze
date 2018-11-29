@@ -421,6 +421,11 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var):
     height = maze.get_height()
     adjusted_can_width = CAN_WIDTH//40*width
     adjusted_can_height = CAN_HEIGHT//40*height
+    if adjusted_can_width > 1600: # Prevents the canvas to be too big
+        adjusted_can_width = 1600
+    if adjusted_can_height > 900: # Prevents the canvas to be too big
+        adjusted_can_height = 900
+    #TODO Adjust the window according the the main screen
     win = Tk() # Creates a window object
     win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
 
