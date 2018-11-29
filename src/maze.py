@@ -26,6 +26,16 @@ class CreationError(Exception):
 
 def _pict_rep_html_header(stream, W, H, p, style_path):
     """
+    Writes the header of the HTML file. Only used in picture_representation.
+        
+    :param stream: (io.TextIOWrapper) - the stream opened to the destination file where the representation will be written
+    :param W: (int) - the width of the svg's maze
+    :param H: (int) - the height of the svg's maze
+    :param p: (int) - the padding of the svg's maze
+    :param style_path: (str) - the path to the css of the svg's maze
+    :return: None
+    :effect: Writes the header lines of the HTML file.
+    :UC: None
     """
     stream.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">\n\n')
     stream.write('  <head>\n')
@@ -43,6 +53,12 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
 
 def _pict_rep_html_footer(stream):
     """
+    Writes the footer of the HTML file. Only used in picture_representation.
+        
+    :param stream: (io.TextIOWrapper) - the stream opened to the destination file where the representation will be written
+    :return: None
+    :effect: Writes the footer lines of the HTML file.
+    :UC: None
     """
     stream.write('    </svg>\n')
     stream.write('  </body>\n\n')
