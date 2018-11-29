@@ -25,6 +25,8 @@ BG_COLOR = 'black'
 GRID_COLOR = 'medium blue'
 GOOD_CELL_COLOR = "yellow"
 BAD_CELL_COLOR = "crimson"
+CIRCLE_SCALE = 0.6
+RECTANGLE_SCALE = 0.8
 
 
 def draw_circle(canvas, event):
@@ -101,7 +103,7 @@ def setup_wall(canvas, maze, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
             if not cell.has_top_rampart():
                 remove_wall(canvas, x, y, "Top", width, height, can_width, can_height)
 
-def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color = GOOD_CELL_COLOR):
+def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color = GOOD_CELL_COLOR, scale=CIRCLE_SCALE):
     """
     draws a circle on the cell of coordinates (x,y)
 
@@ -113,17 +115,18 @@ def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_
     """
     DX = can_width // width 
     DY = can_height // height 
-    canvas.create_oval((x*DX)+5, (y+1)*DY-5,
-                       (x+1)*DX-5, (y)*DY+5,
+    scale = scale/2 + 0.5
+    canvas.create_oval(DX*(x+scale), DY*(y+scale),
+                       DX*(x+1-scale), DY*(y+1-scale),
                        fill = fill_color)
 
-def remove_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BG_COLOR):
+def remove_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BG_COLOR, scale=CIRCLE_SCALE):
     """
     Removes a circle of the canvas by making its color the same as the background's
     """
-    set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color = BG_COLOR)
+    set_circle(canvas, width, height, x, y, can_width=can_width, can_height=can_height, fill_color=fill_color, scale=scale)
     
-def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
+def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BAD_CELL_COLOR, scale=RECTANGLE_SCALE):
     """
     TODO: change the name of the function
 
@@ -135,8 +138,29 @@ def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CA
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
     """
+    scale = scale/2 + 0.5
     DX = can_width // width # This is the width of a square
     DY = can_height // height # This is the height of a square
-    canvas.create_rectangle(x*DX+5, y*DY+5,
-                         (x+1)*DX-5, (y+1)*DY-5,
-                         fill = BAD_CELL_COLOR)
+    canvas.create_rectangle(DX*(x+scale), DY*(y+scale),
+                            DX*(x+1-scale), DY*(y+1-scale),
+                            fill = fill_color)
+
+def remove_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BG_COLOR, scale=RECTANGLE_SCALE):
+    set_bad_cell(canvas, width, height, x, y, can_width=can_width, can_height=can_height, fill_color=fill_color, scale=scale)
+
+def create_canvas(win, adjusted_can_width, adjusted_can_height):
+    """
+    """
+    can = Canvas(win, bg=BG_COLOR, width=adjusted_can_width, height=adjusted_can_height)
+    can.bind('<Button-1>',
+            lambda event: draw_circle(can, event))
+
+    defilY = Scrollbar(win, orient="vertical", command=can.yview)
+    defilY.pack(side="right")
+    defilX = Scrollbar(win, orient="horizontal", command=can.xview)
+    defilX.pack(side="bottom")
+
+    can["yscrollcommand"] = defilY.set
+    can["xscrollcommand"] = defilX.set
+    can.pack(fill="both", expand=True) # Allows the canvas to be handled as grid and columns
+    return can

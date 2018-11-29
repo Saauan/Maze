@@ -36,6 +36,8 @@ SPEED_VALUES = {"Very Slow": 1,
                 "GOTTA GO FAST M8" : 0.001}
 
 global filename # global variable
+global is_disp_res # True if the res is currently displayed, False otherwise
+is_disp_res = False
 
 ####################
 # SETUP FUNCTIONS #
@@ -244,7 +246,7 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
 
     return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox
 
-def check_if_setup_correct(win, width, height):
+def check_if_setup_correct(winset, width, height):
     """
     Checks if the inputs the user has types are correct
     If it is correct, the window is destroyed, else, a warning is displayed
@@ -253,7 +255,7 @@ def check_if_setup_correct(win, width, height):
     try:
         int(width.get())
         int(height.get())
-        win.destroy()
+        winset.destroy()
     except:
         winwarning = Tk()
         winwarning.title("Warning")
@@ -270,10 +272,32 @@ def restart(win, setup_var):
     win.destroy()
     main(setup_var)
 
-def toggle_graphic_res():
+def toggle_graphic_res(can, maze, can_width, can_height):
     """
+    Does not work yet
     """
-    pass
+    width = maze.get_width()
+    height = maze.get_height()
+    if not maze.resolution_trace:
+        maze.resolution_path()
+    global is_disp_res
+    if is_disp_res:
+        for (x,y), state in maze.resolution_trace:
+                if maze.get_square(x, y).get_state() == "crossed":
+                    remove_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
+                elif maze.get_square(x,y).get_state() == "wrong":
+                    remove_bad_cell(can, width, height, x, y, can_width=can_width, can_height=can_height)
+        remove_circle(can, width, height, width-1, height-1, can_width=can_width, can_height=can_height)
+        is_disp_res = False
+
+    else:
+        for (x,y), state in maze.resolution_trace:
+                if maze.get_square(x, y).get_state() == "crossed":
+                    set_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
+                elif maze.get_square(x,y).get_state() == "wrong":
+                    set_bad_cell(can, width, height, x, y, can_width=can_width, can_height=can_height)
+        set_circle(can, width, height, width-1, height-1, can_width=can_width, can_height=can_height)
+        is_disp_res = True
 
 def setup_buttons(win, setup_var):
     """
@@ -283,8 +307,6 @@ def setup_buttons(win, setup_var):
     restartButton.pack(side="left")
     quitButton = Button(win, text="Quit", command=win.destroy)
     quitButton.pack(side="right")
-    toggleresButton = Button(win, text="Toggle Resolution [WIP]", command=toggle_graphic_res)
-    toggleresButton.pack(side="left")
 
 ##################
 # MAIN FUNCTIONS #
@@ -431,44 +453,33 @@ def parse_save(maze, is_save, is_saveres, is_savehtml):
 def graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed):
     """
     """
+    global is_disp_res
     width = maze.get_width()
     height = maze.get_height()
-    adjusted_can_width = CAN_WIDTH//40*width
+    adjusted_can_width = CAN_WIDTH//40*width # Scales the display so as to not stretch the squares
     adjusted_can_height = CAN_HEIGHT//40*height
-    if adjusted_can_width > 1600: # Prevents the canvas to be too big
-        adjusted_can_width = 1600
-    if adjusted_can_height > 900: # Prevents the canvas to be too big
-        adjusted_can_height = 900
+    if adjusted_can_width > 1600 or adjusted_can_height > 900: # Prevents the canvas to be too big
+        adjusted_can_width = CAN_WIDTH
+        adjusted_can_height = CAN_HEIGHT
     #TODO Adjust the window according the the main screen
     win = Tk() # Creates a window object
-    win.title(random_word('../ressources/anagrams.txt')) # DEBUG is only valid is Visual Code
-
-    can = Canvas(win, bg=BG_COLOR, width=adjusted_can_width, height=adjusted_can_height)
-    can.bind('<Button-1>',
-            lambda event: draw_circle(can, event))
-
-    defilY = Scrollbar(win, orient="vertical", command=can.yview)
-    defilY.pack(side="right")
-    defilX = Scrollbar(win, orient="horizontal", command=can.xview)
-    defilX.pack(side="bottom")
-
-    can["yscrollcommand"] = defilY.set
-    can["xscrollcommand"] = defilX.set
-    can.pack() # Allows the canvas to be handled as grid and columns
+    win.title(random_word('../ressources/anagrams.txt'))
+    can = create_canvas(win, adjusted_can_width, adjusted_can_height)
 
     draw_grid(can, width, height, can_width=adjusted_can_width, can_height=adjusted_can_height) 
     setup_wall(can, maze, can_width=adjusted_can_width, can_height=adjusted_can_height)
     setup_buttons(win, setup_var)
     if is_graphicres:
-        res, trace = maze.resolution_path(trace=True)
+        maze.resolution_path(trace=True)
+        trace = maze.resolution_trace
         if is_dynamic:
             pass
-            print(trace)
             # Display all the resolution progressively
             for (x, y), state in trace:
                 if state == "crossed":
                     set_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
                 elif state == "wrong":
+                    remove_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
                     set_bad_cell(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
                 win.update()
                 time.sleep(SPEED_VALUES[speed])
@@ -478,6 +489,12 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed):
                     set_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
                 elif maze.get_square(x,y).get_state() == "wrong":
                     set_bad_cell(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
+        set_circle(can, width, height, width-1, height-1, can_width=adjusted_can_width, can_height= adjusted_can_height)
+        is_disp_res = True
+    toggleresButton = Button(win, text="Toggle Resolution [WIP]",
+                            command=partial(toggle_graphic_res, can, maze, adjusted_can_width, adjusted_can_height))
+    toggleresButton.pack(side="left")
+
     win.mainloop()
 
 def main(old_var=()):

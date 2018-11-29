@@ -227,7 +227,6 @@ class Maze():
         """
         assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
         maze = Maze(width, height)
-        # try:
         nbSquares, memoryPath = maze.get_width()*maze.get_height(), stack.Stack() # We initiate the total number of squares to check & a stack containing the last position
         actualSquare, checkedSquares = maze.get_square(maze.__x0, maze.__y0), 1 # We keep in memory in actualSquare our position, the resolutionPath and the maze and in cpt the number of squares already checked
             
@@ -242,8 +241,6 @@ class Maze():
             actualSquare = followingSquare # Our initial position is now the neighbour chosen before
             checkedSquares += 1 # We increment the number of checked squares
         return maze
-        # except:
-        #     raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
 
  
     def text_representation(self, filename):
@@ -350,7 +347,7 @@ class Maze():
                 resolutionPath.append(actualSquare.get_coordinates())
 
             if trace:
-                return resolutionPath, trace
+                self.resolution_trace = trace
             
             return resolutionPath
         
