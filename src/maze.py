@@ -233,11 +233,8 @@ class Maze():
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :UC: the maze self has to be already generated.
         """
-        if not self.get_square(0,0).is_surrounded():
-            with open("{:s}.txt".format(filename), "w") as mazeModel :
-                mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
-        else:
-            raise CreationError("The Maze isn't generated, you can't write it in a text file.")
+        with open(filename, "w") as mazeModel :
+            mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
                 
     def picture_representation(self, fichier, style_path=STYLE_PATH):
         """
@@ -250,7 +247,7 @@ class Maze():
         :effect: Create a new HTML file in the folder containing the SVG representation of the maze
         :UC: the maze self has to be already generated
         """
-        H = 775 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
+        H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
         with open("{:s}.html".format(fichier), 'w') as output:
@@ -296,9 +293,7 @@ class Maze():
         :return: (list(tuple(str, Square))) - list of possible neighbours for the square
         :UC: self has to be already generated
         """
-        potential_neighbours = [('Top', (0,-1)),
-                                ('Left', (-1,0)),('Right', (1,0)),
-                                         ('Bottom', (0,1))]
+        potential_neighbours = [('Bottom', (0,1)), ('Right', (1,0)), ('Top', (0,-1)), ('Left', (-1,0))]
         neighbours = []
         for side, (Xs, Ys) in potential_neighbours:
             Xn, Yn = square.get_coordinates()[0] + Xs, square.get_coordinates()[1] + Ys
@@ -318,7 +313,7 @@ class Maze():
         :return: (list(tuple(int, int))) A list of tuples of the coordinates of the resolution path in the correct order
                  If more_path is set to True, return a tuple of two lists, with the second list being the path the function followed (see `more_path`)
         :effect: Change the values of some squares' state of self
-        :CU: self has to be already generated but not already resolved.
+        :UC: self has to be already generated but not already resolved.
         """
         try:
             memoryPath, resolutionPath = stack.Stack(), [(self.__x0, self.__y0)] # We initiate a stack containing the last position & the list of the positions' solution.
@@ -337,7 +332,7 @@ class Maze():
                         print("Ugh, you just fell in a dead-end. Let's go back to the position {0}.".format(actualSquare.get_coordinates()))
                     continue
                 
-                side, followingSquare = random.choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
+                side, followingSquare = NEIGHBOURS[0] # We go randomly in one direction depending on the possible NEIGHBOURS
                 memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
                 actualSquare.state_modification("crossed")
                 actualSquare = followingSquare # Our initial position is now the neighbour chosen before
