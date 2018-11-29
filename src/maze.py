@@ -98,35 +98,6 @@ class Maze():
         assert type(x) == int and type(y) == int, 'The x-coordinate & the y-coordinate of your square have to be positive integers'
         return self.maze[x][y]
     
-    def hand_generation(self):
-        """
-        Allow the user to create a maze from a blank one `self` by himself.
-        
-        :param self: (Maze) - a fresh new maze
-        :return: None
-        :effect: Launch a series of inputs which the user has to complete correctly
-        :UC: self has to be a new, not modified.
-                If already modified, CreationError raised.
-        """
-        if not self.get_square(0,0).is_surrounded():
-            raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
- 
-        for linesSquares in self.maze :
-            for sqr in linesSquares:
-                
-                R = input("Enter the walls for the square at the position  {0}  like this :\nLeftOne, TopOne, RightOne, BottomOne. \n".format(sqr.get_coordinates()))
-                R = [r.strip() for r in R.split(',') if r != ''] 
-                for boo in range(len(R)):
-                    if R[boo] == 'True':
-                        R[boo] = True              # After the input's processing, R will contain the values of the 4 ramparts of the square
-                    else:
-                        R[boo] = False 
-                
-                for i,k in enumerate(sqr.get_ramparts()):
-                    sqr.square_modification(k, R[i])     # Apply the square's modifications
-                
-                print("\n")
-                print(self)
                           
     def __str__(self):
         """
@@ -195,7 +166,7 @@ class Maze():
     @staticmethod
     def random_generation(width, height):
         """
-        Allow the user to create a random maze of `width`*`height` squares.
+        Allow the user to generate a random maze of `width`*`height` squares.
         
         :param width: (int) - the width of your maze
         :param height: (int) - the height of your maze
@@ -222,6 +193,40 @@ class Maze():
             return maze
         except:
             raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
+
+
+    @staticmethod
+    def hand_generation(width, height):
+        """
+        Allow the user to create a maze of `width`*`height` squares by himself.
+        
+        :param width: (int) - the width of your maze
+        :param height: (int) - the height of your maze
+        :return: None
+        :effect: Launch a series of input to change the walls' values
+        :UC: `width` and `height` must be positive integers
+        """
+        assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
+        maze = Maze(width, height)
+        print(maze)
+        for linesSquares in maze.maze :
+            for sqr in linesSquares:
+                
+                R = input("Enter the walls for the square at the position  {0}  like this :\nLeftOne, TopOne, RightOne, BottomOne. \n".format(sqr.get_coordinates()))
+                R = [r.strip() for r in R.split(',') if r != ''] 
+                for boo in range(len(R)):
+                    if R[boo] == 'True':
+                        R[boo] = True              # After the input's processing, R will contain the values of the 4 ramparts of the square
+                    elif R[boo] == 'False':
+                        R[boo] = False 
+                    else:
+                        print("You entered a wrong value for the wall. Please do it again.")
+                        return
+                for i,k in enumerate(sqr.get_ramparts()):
+                    sqr.square_modification(k, R[i])     # Apply the square's modifications
+                
+                print("\n")
+                print(maze)
 
 
     def text_representation(self, filename, disp_res = False):
