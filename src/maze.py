@@ -109,7 +109,7 @@ class Maze():
         12 
         """
         assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
-        self.__x0, self.__y0 = x0, y0
+        self.__x0, self.__y0 = x0, y0 # Initialization of the initial position, the width, the height and the grid of the maze.
         self.__width, self.__height = width, height
         self.maze = [[Square(X,Y) for Y in range(height)] for X in range(width)]
         
@@ -126,7 +126,7 @@ class Maze():
         >>> M.get_height()
         5
         """
-        return self.__height
+        return self.__height 
 
     def get_width(self):
         """
@@ -172,22 +172,10 @@ class Maze():
             
             Laby_Line = ['|'] # We initiate the leftmost rampart of a line
             for X in range(self.get_width()):
-                if self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "blank":
-                    Laby_Line.extend(' |') # We add a '|' if the left-hand square has a right-hand rampart
-                elif not self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "blank":
-                    Laby_Line.extend('  ') # We don't add anything
-                elif self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "crossed":
-                    Laby_Line.extend('✔|')
-                elif not self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "crossed":
-                    Laby_Line.extend('✔ ')
-                elif self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "wrong":
-                    Laby_Line.extend('✖|')
-                elif not self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "wrong":
-                    Laby_Line.extend('✖ ')
-                elif self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "finish":
-                    Laby_Line.extend('⚑|')
-                elif not self.get_square(X,Y).has_right_rampart() and self.get_square(X,Y).get_state() == "finish":
-                    Laby_Line.extend('⚑ ')
+                if self.get_square(X,Y).has_right_rampart():
+                    Laby_Line.extend('{:s}|'.format(Square.STATES[self.get_square(X,Y).get_state()]))
+                elif not self.get_square(X,Y).has_right_rampart():
+                    Laby_Line.extend('{:s} '.format(Square.STATES[self.get_square(X,Y).get_state()]))
             Labyrinth.append(''.join(Laby_Line))
             
             Laby_Line = ['+'] # We initiate the leftmost rampart of an interline
@@ -216,9 +204,9 @@ class Maze():
         neighbours = []
         for side, (Xs, Ys) in potential_neighbours:
             Xn, Yn = square.get_coordinates()[0] + Xs, square.get_coordinates()[1] + Ys
-            if (0 <= Xn < self.get_width()) and (0 <= Yn < self.get_height()):
+            if (0 <= Xn < self.get_width()) and (0 <= Yn < self.get_height()): # We check if the square isn't outside the maze's width & height
                 neighbour = self.get_square(Xn, Yn)
-                if neighbour.is_surrounded():
+                if neighbour.is_surrounded(): # If it is surrounded, it is not checked yet, so it is a valid neighbour
                     neighbours.append((side, neighbour))
         return neighbours
 
@@ -279,8 +267,8 @@ class Maze():
                     elif R[boo] == 'False':
                         R[boo] = False 
                     else:
-                        print("You entered a wrong value for the wall. Please do it again.")
-                        return
+                        print("You entered a wrong value for the wall. Please do it again.") 
+                        return # If the user entered something else, he has to start the process again
                 for i,k in enumerate(sqr.get_ramparts()):
                     sqr.square_modification(k, R[i])     # Apply the square's modifications
                 
@@ -298,11 +286,11 @@ class Maze():
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :UC: the maze self has to be already generated.
         """
-        maze = deepcopy(self)
-        if disp_res == False:
+        maze = deepcopy(self) # We make a copy, then the initial variable maze self won't be changed
+        if disp_res == False: # It means that the resolution_path has to be hidden in the text_representation
             with open(filename, "w") as mazeModel :
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
-        elif disp_res == True:
+        elif disp_res == True: # It means that the resolution_path has to be shown in the text_representation
             maze.resolution_path()
             with open(filename, "w") as mazeModel :
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
@@ -352,9 +340,9 @@ class Maze():
         neighbours = []
         for side, (Xs, Ys) in potential_neighbours:
             Xn, Yn = square.get_coordinates()[0] + Xs, square.get_coordinates()[1] + Ys
-            if (0 <= Xn < self.get_width()) and (0 <= Yn < self.get_height()):
-                neighbour = self.get_square(Xn, Yn)
-                if not square.has_common_rampart(neighbour, side) and neighbour.get_state() != "crossed" and neighbour.get_state() != "wrong":
+            if (0 <= Xn < self.get_width()) and (0 <= Yn < self.get_height()): # We check if the square isn't outside the maze's width & height
+                neighbour = self.get_square(Xn, Yn) 
+                if not square.has_common_rampart(neighbour, side) and neighbour.get_state() != "crossed" and neighbour.get_state() != "wrong": # If the square & his neighbour have no common rampart and if neighbour's state isn't 'wrong' or 'crossed', it is a valid neighbour
                     neighbours.append((side, neighbour))
         return neighbours
         
@@ -376,13 +364,13 @@ class Maze():
             finalSquare.state_modification("finish")
             if talkative:
                 print("Starting at the position {0}.".format(actualSquare.get_coordinates()))
-            allPath = []
+            allPath = [actualSquare.get_coordinates()]
             while actualSquare.get_coordinates() != (self.get_width() - 1, self.get_height() - 1):
                 NEIGHBOURS = self.resolution_neighbours(actualSquare) # All neighbours which are neither 'wrong' nor 'crossed'
-                allPath.append(actualSquare.get_coordinates)
                 if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
                     actualSquare.state_modification("wrong")
-                    actualSquare = memoryPath.pop() ; resolutionPath.pop()
+                    actualSquare = memoryPath.pop()
+                    resolutionPath.pop()
                     if talkative:
                         print("Ugh, you just fell in a dead-end. Let's go back to the position {0}.".format(actualSquare.get_coordinates()))
                     continue
@@ -393,7 +381,9 @@ class Maze():
                 actualSquare = followingSquare # Our initial position is now the neighbour chosen before
                 if talkative:
                     print("Moving to the {:s} side... ".format(side) + "now arrived in the position {0}.".format(actualSquare.get_coordinates()))
+                allPath.append(actualSquare.get_coordinates())
                 resolutionPath.append(actualSquare.get_coordinates())
+            
             if more_path:
                 return resolutionPath, allPath
             

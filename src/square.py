@@ -37,7 +37,10 @@ class Square():
                  'Top':'Bottom',
                  'Bottom':'Top'}
 
-    STATES = {"blank", "crossed", "wrong", "finish"}
+    STATES = {"blank": " ",
+              "crossed": "✔",
+              "wrong": "✖",
+              "finish": "⚑"}
     
     def __init__(self, x, y, state = "blank"):
         """
@@ -72,7 +75,7 @@ class Square():
         """
         self.__x, self.__y = x, y
         self.__ramparts = {'Left' : True, 'Top' : True, 'Right' : True, 'Bottom' : True}
-        self.__state = state
+        self.__state = state # Initialization of the coordinates, the ramparts and the state of the square
         
     def has_left_rampart(self):
         """
@@ -191,7 +194,7 @@ class Square():
     
     def get_state(self):
         """
-        Returns `self`'s state.
+        Returns `self`'s state. The states are 'blank', 'crossed', 'wrong' and 'finish'.
 
         :return: (str) - representing the square's state
         :Examples:
@@ -233,7 +236,7 @@ class Square():
         False
         """
         assert value in {True, False}, "The value of the rampart has to be a boolean."
-        assert rampart in {'Left','Top','Right','Bottom'}, "The rampart has to be Left, Top, Right or Bottom"
+        assert rampart in Square.OPPOSITES.keys(), "The rampart has to be Left, Top, Right or Bottom"
         self.__ramparts[rampart] = value
         
     def state_modification(self, value):
@@ -253,7 +256,7 @@ class Square():
         >>> square.get_state()
         'crossed'
         """
-        assert value in Square.STATES, "The state's value isn't right. Has to be blank, crossed, wrong or finish."
+        assert value in Square.STATES.keys(), "The state's value isn't right. Has to be blank, crossed, wrong or finish."
         self.__state = value
 
 if __name__ == '__main__':
