@@ -22,10 +22,18 @@ from tkinter import * #pylint: disable=W0614
 from tkinter import filedialog
 from functools import partial
 import os
+import time
 
 SETUP_WIDTH = 800
 SETUP_HEIGHT = 600
 SAVE_PATH = "../mazes/"
+SPEED_VALUES = {"Very Slow": 1,
+                "Slow" : 0.5,
+                "Normal" : 0.2,
+                "Fast" : 0.1,
+                "Very Fast" : 0.05,
+                "Extremely Fast" : 0.01,
+                "GOTTA GO FAST M8" : 0.001}
 
 global filename # global variable
 
@@ -213,7 +221,7 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
 
     return saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
 
-def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic):
+def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic, default_speed):
     """
     Returns the graphic items used for the setup_window
 
@@ -228,10 +236,16 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
     dynamicCheck = Checkbutton(winset, variable=is_dynamic, text="Display the resolution dynamically")
     is_graphic = IntVar(winset, default_graphic)
     graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
+    speedLabel = Label(winset, text="Speed for dynamic")
+    print(list(SPEED_VALUES.keys()))
+    speedSpinbox = Spinbox(winset, values=(list(SPEED_VALUES.keys())), wrap="True")
+    for i in range(list(SPEED_VALUES.keys()).index(default_speed)):
+        speedSpinbox.invoke("buttonup")
 
-    return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck
+    print(speedSpinbox)
+    return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, speedSpinbox
 
-def check_if_setup_correct(win, width, height):
+def check_if_setup_correct(win, width, height, speedSpinbox):
     """
     Checks if the inputs the user has types are correct
     If it is correct, the window is destroyed, else, a warning is displayed
@@ -240,6 +254,8 @@ def check_if_setup_correct(win, width, height):
     try:
         int(width.get())
         int(height.get())
+        global speed_value 
+        speed_value = speedSpinbox.get()
         win.destroy()
     except:
         winwarning = Tk()
@@ -278,7 +294,7 @@ def setup_buttons(win, setup_var):
 ##################
 
 def setup_window(default_width=20, default_height=20, default_path="", default_gen=2, default_save=1, default_saveres=0, 
-                 default_savehtml=0, default_graphic=1, default_graphicres=1, default_graphicdynamic=1):
+                 default_savehtml=0, default_graphic=1, default_graphicres=1, default_graphicdynamic=1, default_speed="Normal"):
     """
     Opens a window for the user to input parameters and then returns those parameters
 
@@ -320,10 +336,10 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck = save_var
 
     # Graphic setup
-    graphic_var = setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic)
-    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck = graphic_var
+    graphic_var = setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic, default_speed)
+    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, speedSpinbox = graphic_var
 
-    okButton["command"] = partial(check_if_setup_correct, winset, width, height)
+    okButton["command"] = partial(check_if_setup_correct, winset, width, height, speedSpinbox)
 
     # Placement
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
@@ -353,12 +369,13 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     graphicCheck.grid(row = 31, column = 0)
     graphicresCheck.grid(row = 32, column = 0 )
     dynamicCheck.grid(row = 33, column = 0)
-
+    speedLabel.grid(row=34, column=0)
+    speedSpinbox.grid(row=34, column=1)
     winset.mainloop()
 
     return (int(width.get()), int(height.get()), filename.get(), varGen.get(), 
             is_save.get(), is_saveres.get(), is_savehtml.get(),
-            is_graphic.get(), is_graphicres.get(), is_dynamic.get())
+            is_graphic.get(), is_graphicres.get(), is_dynamic.get(), speed_value)
 
 def parse_gen(width, height, filepath, varGen):
     """
@@ -414,7 +431,7 @@ def parse_save(maze, is_save, is_saveres, is_savehtml):
     if is_savehtml:
         maze.picture_representation(SAVE_PATH+"maze_html.html")
 
-def graph_disp(maze, is_graphicres, is_dynamic, setup_var):
+def graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed):
     """
     """
     width = maze.get_width()
@@ -446,12 +463,24 @@ def graph_disp(maze, is_graphicres, is_dynamic, setup_var):
     setup_wall(can, maze, can_width=adjusted_can_width, can_height=adjusted_can_height)
     setup_buttons(win, setup_var)
     if is_graphicres:
+        res, trace = maze.resolution_path(trace=True)
         if is_dynamic:
             pass
+            print(trace)
             # Display all the resolution progressively
-        else:
-            pass
-            # Display all the resolution in one go
+            for (x, y), state in trace:
+                if state == "crossed":
+                    set_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
+                elif state == "wrong":
+                    set_bad_cell(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
+                win.update()
+                time.sleep(SPEED_VALUES[speed])
+        else: 
+            for (x, y), state in trace:
+                if maze.get_square(x, y).get_state() == "crossed":
+                    set_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
+                elif maze.get_square(x,y).get_state() == "wrong":
+                    set_bad_cell(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
     win.mainloop()
 
 def main(old_var=()):
@@ -459,7 +488,7 @@ def main(old_var=()):
     """
     # We get all the setup variable from the user using a GUI
     setup_var = setup_window(*old_var)
-    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic = setup_var
+    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic, speed = setup_var
 
     # We generate the maze
     maze = parse_gen(width, height, filepath, varGen)
@@ -469,7 +498,7 @@ def main(old_var=()):
 
     # Displays the maze
     if is_graphic:
-        graph_disp(maze, is_graphicres, is_dynamic, setup_var)
+        graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed)
 
     
 if __name__ == '__main__':
