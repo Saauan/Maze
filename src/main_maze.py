@@ -237,15 +237,14 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
     is_graphic = IntVar(winset, default_graphic)
     graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
     speedLabel = Label(winset, text="Speed for dynamic")
-    print(list(SPEED_VALUES.keys()))
-    speedSpinbox = Spinbox(winset, values=(list(SPEED_VALUES.keys())), wrap="True")
-    for i in range(list(SPEED_VALUES.keys()).index(default_speed)):
+    varSpeed = StringVar(winset, default_speed)
+    speedSpinbox = Spinbox(winset, values=(list(SPEED_VALUES.keys())), wrap="True", textvariable=varSpeed)
+    for i in range(list(SPEED_VALUES.keys()).index(default_speed)): # Moves the current speed to the default one
         speedSpinbox.invoke("buttonup")
 
-    print(speedSpinbox)
-    return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, speedSpinbox
+    return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox
 
-def check_if_setup_correct(win, width, height, speedSpinbox):
+def check_if_setup_correct(win, width, height):
     """
     Checks if the inputs the user has types are correct
     If it is correct, the window is destroyed, else, a warning is displayed
@@ -254,8 +253,6 @@ def check_if_setup_correct(win, width, height, speedSpinbox):
     try:
         int(width.get())
         int(height.get())
-        global speed_value 
-        speed_value = speedSpinbox.get()
         win.destroy()
     except:
         winwarning = Tk()
@@ -337,9 +334,9 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
 
     # Graphic setup
     graphic_var = setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic, default_speed)
-    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, speedSpinbox = graphic_var
+    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox = graphic_var
 
-    okButton["command"] = partial(check_if_setup_correct, winset, width, height, speedSpinbox)
+    okButton["command"] = partial(check_if_setup_correct, winset, width, height)
 
     # Placement
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
@@ -375,7 +372,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
 
     return (int(width.get()), int(height.get()), filename.get(), varGen.get(), 
             is_save.get(), is_saveres.get(), is_savehtml.get(),
-            is_graphic.get(), is_graphicres.get(), is_dynamic.get(), speed_value)
+            is_graphic.get(), is_graphicres.get(), is_dynamic.get(), varSpeed.get())
 
 def parse_gen(width, height, filepath, varGen):
     """
