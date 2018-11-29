@@ -12,6 +12,7 @@ This module provides functions and a class for hand-maze's game's management.
 """
 
 from square import Square
+from copy import copy, deepcopy
 import stack
 import random
 
@@ -222,19 +223,25 @@ class Maze():
         except:
             raise CreationError("Maze already generated, can't generate it again. Please create another variable to generate another one.")
 
- 
-    def text_representation(self, filename):
+
+    def text_representation(self, filename, disp_res = False):
         """
         Create a new text file, named `filename`, containing the maze `self`s informations.
         
-        :param self: (Maze) - a fresh new maze
+        :param self: (Maze) - a maze
         :param filename: (str) - the name of the file which will contain the maze self
         :return: None
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :UC: the maze self has to be already generated.
         """
-        with open(filename, "w") as mazeModel :
-            mazeModel.write("{:d}\n{:d}\n{:s}".format(self.get_width(), self.get_height(), self.__str__()))
+        maze = deepcopy(self)
+        if disp_res == False:
+            with open(filename, "w") as mazeModel :
+                mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
+        elif disp_res == True:
+            maze.resolution_path()
+            with open(filename, "w") as mazeModel :
+                mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
                 
     def picture_representation(self, fichier, style_path=STYLE_PATH):
         """
