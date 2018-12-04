@@ -295,6 +295,7 @@ class Maze():
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
                 
     def picture_representation(self, filename, style_path=STYLE_PATH):
+
         """
         Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
         
