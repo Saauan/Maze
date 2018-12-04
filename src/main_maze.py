@@ -146,6 +146,9 @@ def toggleonoff(elemon, elemoff):
     :UC: None
     :Example:
 
+    >>> root = Tk()
+    >>> root.withdraw()
+    ''
     >>> someObject = Button(root, state="normal")
     >>> anotherObject = Entry(root, textvariable="test", state="disabled")
     >>> toggleonoff([anotherObject], [someObject])
@@ -279,6 +282,8 @@ def is_convertible_to_integer(a):
         return True
     except TypeError:
         return False
+    except ValueError:
+        return False
 
 def exit_setup(winset, width, height, varGen, g_filename):
     """
@@ -323,6 +328,25 @@ def exit_setup(winset, width, height, varGen, g_filename):
 # GRAPHICMAZE FUNCTIONS #
 #########################
 
+def adjust_dimensions(width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, ratio=40):
+    """
+    Returns adjusted dimensions for the canvas to use so that its content is not stretched
+
+    :param can_width: (int or float) the width of the current canvas
+    :param can_height: (int or float) the height of the current canvas
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :ratio: (int or float)
+    :return: (tuple of two floats) the adjusted dimensions
+    :UC: ratio != 0
+    """
+    adj_can_width = can_width//ratio*width
+    adj_can_height = can_height//ratio*height
+    if adj_can_width > 1600 or adj_can_height > 900: # Prevents the canvas to be too big
+        adj_can_width = can_width
+        adj_can_height = can_height
+    return adj_can_width, adj_can_height
+
 def restart(win, setup_var):
     """
     Restarts the program by closing the maze's window and reseting the setup values to the last ones (not necessarly the default ones)
@@ -338,38 +362,83 @@ def restart(win, setup_var):
 
 def toggle_graphic_res(can, maze, can_width, can_height):
     """
-    Does not work yet
+    Toggles on and off the resolution on the graphicmaze.
+    Uses the global variable `is_disp_res`
+
+    :param can: (Canvas)
+    :param maze: (Maze)
+    :param can_width: (Int or float) the width of the canvas
+    :param can_height: (Int or float) the width of the canvas
+    :side effect: Inverts the value of is_disp_res (bool)
+    :return: None
+    :UC: `is_disp_res` must be a global variable
     """
     width = maze.get_width()
     height = maze.get_height()
-    trace = maze.resolution_path(trace=True)
-    global is_disp_res
-    if is_disp_res:
+    trace = maze.resolution_path(trace=True) # The complete process of the resolution
+    global is_disp_res # True if the resolution is displayed
+    if is_disp_res: 
         for (x,y), state in trace:
-                if maze.get_square(x, y).get_state() == "crossed":
+                if state == "crossed": # We erase the good path
                     remove_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
-                elif maze.get_square(x,y).get_state() == "wrong":
+                elif state == "wrong": # We erase the bad cells
                     remove_bad_cell(can, width, height, x, y, can_width=can_width, can_height=can_height)
+        # We also erase the finish cell
         remove_circle(can, width, height, width-1, height-1, can_width=can_width, can_height=can_height)
         is_disp_res = False
 
     else:
         for (x,y), state in trace:
-                if maze.get_square(x, y).get_state() == "crossed":
+                if state == "crossed": # We draw the good path
                     set_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
-                elif maze.get_square(x,y).get_state() == "wrong":
+                elif state == "wrong": # We draw the bad cells
                     set_bad_cell(can, width, height, x, y, can_width=can_width, can_height=can_height)
+        # We also draw the finish cell
         set_circle(can, width, height, width-1, height-1, can_width=can_width, can_height=can_height)
         is_disp_res = True
 
+    # Note: Will draw/erase over same cell a maximum of 2 times TODO
+
 def setup_buttons(win, setup_var):
     """
-    Adds buttons to the graphical_maze
+    Adds buttons to the window.
+    Adds the restart button and the quit button.
+    
+    :param win: (Tkitner window)
+    :param setup_var: (Tuple) see `setup_window` for the default values
+    :side effect: puts two buttons on the window `win`
+    :return: None
+    :UC: setup_var must have as many elements as there are parameters in `setup_window`
     """
     restartButton = Button(win, text="Restart", command=partial(restart, win, setup_var))
     restartButton.pack(side="left")
-    quitButton = Button(win, text="Quit", command=win.destroy)
+    quitButton = Button(win, text="Quit", command=exit)
     quitButton.pack(side="right")
+
+def draw_res_cell(can, width, height, x, y, state, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
+    """
+    Draws a resolution cell of the maze of dimensions `width` and `height` on the canvas
+    `can` of dimensions `can_width` and `can_height` at the coordinate `x`, `y`.
+    If the cell is a a good one (on the path to the finish), it will draw a circle over it.
+    Else, it will draw a square over it
+
+    :param can: (Canvas)
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param x: (int) the x coordinate of the cell
+    :param y: (int) the y coordinate of the cell
+    :param state: (str) a state of the cell (see the `square` module)
+    :param can_width: (int or float) the width of the canvas
+    :param can_height: (int or float) the height of the canvas
+    :side effect: draws a cell on the canvas
+    :return: None
+    :UC: x and y must be within the dimension width and height
+    """
+    if state == "crossed":
+        set_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
+    elif state == "wrong":
+        remove_circle(can, width, height, x, y, can_width=can_width, can_height=can_height)
+        set_bad_cell(can, width, height, x, y, can_width=can_width, can_height=can_height)
 
 ##################
 # MAIN FUNCTIONS #
@@ -402,7 +471,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     winset = Tk()
     winset.title("Maze setup")
     title = Label(winset, text="Please, select options in order to continue")
-    exitButton = Button(winset, text='Exit', command=quit)
+    exitButton = Button(winset, text='Exit', command=exit)
     okButton = Button(winset, text="OK")
 
     # Entries (width, height and filepath) setup
@@ -422,6 +491,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox = graphic_var
 
     okButton["command"] = partial(exit_setup, winset, width, height, varGen, g_filename)
+    # okButton["command"] = winset.destroy DEBUG
 
     # Placement
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
@@ -453,6 +523,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     dynamicCheck.grid(row = 33, column = 0)
     speedLabel.grid(row=34, column=0)
     speedSpinbox.grid(row=34, column=1)
+
     winset.mainloop()
 
     return (int(width.get()), int(height.get()), g_filename.get(), varGen.get(), 
@@ -480,22 +551,26 @@ def parse_gen(width, height, filepath, varGen):
     >>> maze_test.get_width()
     20
     """
+    # Generate from a text file
     if varGen == 1:
         maze = Maze().build_maze_from_text(filepath)
     else:
-        try: # TO REMOVE
+        try:
             width = int(width)
             height = int(height)
-        except TypeError:
-            raise TypeError("The width and height are not of the correct type !")
-        if varGen == 2:
-            maze = Maze().random_generation(width, height)
-        else:
-            # maze = Maze.hand_generation() #TODO
-            pass
+        except TypeError as err:
+            print("The width and height are not of the correct type !, There's might be a bug in `exit_setup`", err)
+            raise
+    # Generate randomly
+    if varGen == 2:
+        maze = Maze().random_generation(width, height)
+    # Generate by hand
+    else:
+        # maze = Maze.hand_generation() #TODO
+        pass
     return maze
 
-def parse_save(maze, is_save, is_saveres, is_savehtml):
+def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     """
     Saves the maze into different files depending on the arguments of the function
 
@@ -503,79 +578,96 @@ def parse_save(maze, is_save, is_saveres, is_savehtml):
     :param is_save: (bool) if True, the maze will be saved as is in a text file
     :param is_saveres: (bool) if True, the maze and its resolution will be saved in a text file
     :param is_savehtml: (bool) if True, the maze and its resolution will be saved in an html file
+    :param save_path: (str) [default SAVE_PATH] the path to the directory where the maze will be saved
+    :side effect: save
     :return: None
+    :UC: None
     """
     if is_save:
         maze.text_representation(SAVE_PATH+"maze.txt")
     if is_saveres:
-        # maze.text_representation(SAVE_PATH+"maze_res.txt", res=True)
+        # maze.text_representation(SAVE_PATH+"maze_res.txt", res=True) TODO
         pass
     if is_savehtml:
         maze.picture_representation(SAVE_PATH+"maze_html.html")
 
-def graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed):
+def graph_disp(maze, is_graphicres, is_dynamic, speed, setup_var):
     """
+    Displays a `maze` on a Tkinter window and eventually its solution (dynamicaly or not)
+
+    :param maze: (Maze)
+    :param is_graphicres: (bool) if set to True, the resolution will be displayed
+    :param is_dynamic: (bool)  if set to True (and is_graphicres is True) the resolution will be displayed in a dynamic way
+    :param speed: (str) a key of the dictionnary SPEED_VALUES
+    :param setup_var: (tuple) see `setup_window` for the default values
+    :side effect: Displays a graph on a window
+    :return: None
+    :UC: None
     """
-    global is_disp_res
+    global is_disp_res  # True if the resolution is currently displayed, False otherwise
     width = maze.get_width()
     height = maze.get_height()
-    adjusted_can_width = CAN_WIDTH//40*width # Scales the display so as to not stretch the squares
-    adjusted_can_height = CAN_HEIGHT//40*height
-    if adjusted_can_width > 1600 or adjusted_can_height > 900: # Prevents the canvas to be too big
-        adjusted_can_width = CAN_WIDTH
-        adjusted_can_height = CAN_HEIGHT
+
+    adj_can_width, adj_can_height = adjust_dimensions(width, height) # We adjust the dimension
+
     #TODO Adjust the window according the the main screen
     win = Tk() # Creates a window object
     # win.title(random_word('../ressources/anagrams.txt'))
-    can = create_canvas(win, adjusted_can_width, adjusted_can_height)
+    can = create_canvas(win, adj_can_width, adj_can_height)
 
-    draw_grid(can, width, height, can_width=adjusted_can_width, can_height=adjusted_can_height) 
-    setup_wall(can, maze, can_width=adjusted_can_width, can_height=adjusted_can_height)
+    draw_grid(can, width, height, can_width=adj_can_width, can_height=adj_can_height) 
+    setup_wall(can, maze, can_width=adj_can_width, can_height=adj_can_height)
     setup_buttons(win, setup_var)
     if is_graphicres:
         trace = maze.resolution_path(trace=True)
+        # Display all the resolution progressively
         if is_dynamic:
-            pass
-            # Display all the resolution progressively
+            speed_val = SPEED_VALUES[speed]
             for (x, y), state in trace:
-                if state == "crossed":
-                    set_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
-                elif state == "wrong":
-                    remove_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
-                    set_bad_cell(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
+                draw_res_cell(can, width, height, x, y, state, adj_can_width, adj_can_height)
                 win.update()
-                time.sleep(SPEED_VALUES[speed])
+                time.sleep(speed_val)
+        # Display the resolution in one go
         else: 
             for (x, y), state in trace:
-                if maze.get_square(x, y).get_state() == "crossed":
-                    set_circle(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
-                elif maze.get_square(x,y).get_state() == "wrong":
-                    set_bad_cell(can, width, height, x, y, can_width=adjusted_can_width, can_height= adjusted_can_height)
-        set_circle(can, width, height, width-1, height-1, can_width=adjusted_can_width, can_height= adjusted_can_height)
+                draw_res_cell(can, width, height, x, y, state, adj_can_width, adj_can_height)
+        # Draw the finish cell
+        set_circle(can, width, height, width-1, height-1, can_width=adj_can_width, can_height= adj_can_height)
         is_disp_res = True
-    toggleresButton = Button(win, text="Toggle Resolution [WIP]",
-                            command=partial(toggle_graphic_res, can, maze, adjusted_can_width, adjusted_can_height))
+
+    toggleresButton = Button(win, text="Toggle Resolution",
+                            command=partial(toggle_graphic_res, can, maze, adj_can_width, adj_can_height))
     toggleresButton.pack(side="left")
     win.mainloop()
 
 def main(old_var=()):
     """
+    Main function of main_maze.py.
+    Will in this order:
+        * Display a setup window
+        * Generate a maze according to the setup parameters
+        * May save it into different files (depends on the parameters)
+        * May display the maze in a window with the resolution (depends on the parameters)
+
+    :param old_var: (tuple) [default = ()] the setup variable used by the user the last time the main function was ran (Used in setup_var)
+    :side effect: (see above)
+    :return: None
+    :UC: None
     """
     # We get all the setup variable from the user using a GUI
     setup_var = setup_window(*old_var)
     width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic, speed = setup_var
     # We generate the maze
     maze = parse_gen(width, height, filepath, varGen)
-    time.sleep(0.5)
     # If we must, we save it in files
     parse_save(maze, is_save, is_saveres, is_savehtml)
 
     # Displays the maze
     if is_graphic:
-        graph_disp(maze, is_graphicres, is_dynamic, setup_var, speed)
+        graph_disp(maze, is_graphicres, is_dynamic, speed, setup_var)
 
     
 if __name__ == '__main__':
     main()
     import doctest
-    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=False)
+    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=True)
