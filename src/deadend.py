@@ -11,7 +11,7 @@
 This module provides functions for a 'deadend method' resolution of a maze.
 """
 
-from maze import *
+from maze import Maze, CreationError
 
 
 def deadend_neighbours(maze, square, res):
