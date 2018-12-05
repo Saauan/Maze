@@ -258,32 +258,25 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
 
     return saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
 
-def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic, default_speed):
+def setup_wingraphic(winset, default_graphic, default_speed):
     """
     Returns the graphic items used for the setup_window
 
     :param: (Tk) a window
-    :param default_graphic: (int) 1 if the maze is displayed
-    :param default_graphicres: (int) 1 if the maze is displayed with the resolution
-    :param default_graphicdynamic: (int) 1 if the maze is displayed with a dynamic resolution (graphicres must be 1)
+    :param default_graphic: (int) the default graphic display option:
+            * 0 : Do not display the maze
+            * 1 : Display the maze
+            * 2 : Display the maze and its resolution
+            * 3 : Display the maze and its resolution dynamicaly
+            * 4 : Display the maze textually
+            * 5 : Display the maze textually with the resolution
     :param default_speed: (str) the speed of the dynamic resolution
-    :return: (Label, IntVar, Checkbutton, IntVar, Checkbutton, IntVar, Checkbutton, Label, StringVar, Spinbox)
-    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox
+    :return: (Label, IntVar, CheckButton, Checkbutton, Checkbutton, Checkbutton, Label, StringVar, Spinbox)
+    graphicLabel, varGraph, notgraphicCheck, graphicresCheck, dynamicCheck, graphicCheck, speedLabel, varSpeed, speedSpinbox
     :UC: default_speed must be in SPEED_VALUES.keys()
     """
     graphicLabel = Label(winset, text="Graphic Options")
-
-    # Graphic resolution
-    is_graphicres = IntVar(winset, default_graphicres)
-    graphicresCheck = Checkbutton(winset, variable=is_graphicres, text="Display the resolution on the maze")
-
-    # Dynamic resolution
-    is_dynamic = IntVar(winset, default_graphicdynamic)
-    dynamicCheck = Checkbutton(winset, variable=is_dynamic, text="Display the resolution dynamically")
-
-    # Displaying the Maze
-    is_graphic = IntVar(winset, default_graphic)
-    graphicCheck = Checkbutton(winset, variable=is_graphic, text="Display the maze on a window", command=partial(invert_state, [graphicresCheck, dynamicCheck]))
+    varGraph = IntVar(winset, default_graphic)
 
     # Speed of dynamic resolution
     speedLabel = Label(winset, text="Speed for dynamic")
@@ -292,7 +285,27 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
     for i in range(list(SPEED_VALUES.keys()).index(default_speed)): # Moves the current speed to the default one
         speedSpinbox.invoke("buttonup")
 
-    return graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox
+
+
+    # Not displaying the Maze
+    notgraphicCheck = Radiobutton(winset, variable=varGraph, value=0, text="Do not display the maze on a window", command=partial(toggle_state_off, [speedSpinbox]))
+
+    # Displaying the Maze textually
+    textCheck = Radiobutton(winset, variable=varGraph, value=4, text="Display the maze textually", command=partial(toggle_state_off, [speedSpinbox]))
+
+    # Same but with the resolution
+    textresCheck = Radiobutton(winset, variable=varGraph, value=5, text="Display the maze textually with the resolution", command=partial(toggle_state_off, [speedSpinbox]))
+
+    # Displaying the Maze
+    graphicCheck = Radiobutton(winset, variable=varGraph, value=1, text="Display the maze on a window", command=partial(toggle_state_off, [speedSpinbox]))
+
+    # Graphic resolution
+    graphicresCheck = Radiobutton(winset, variable=varGraph, value=2, text="Display the resolution on the maze", command=partial(toggle_state_off, [speedSpinbox]))
+
+    # Dynamic resolution
+    dynamicCheck = Radiobutton(winset, variable=varGraph, value=3, text="Display the resolution dynamically", command=partial(toggle_state_on, [speedSpinbox]))
+
+    return graphicLabel, varGraph, notgraphicCheck, textCheck, textresCheck, graphicresCheck, dynamicCheck, graphicCheck, speedLabel, varSpeed, speedSpinbox
 
 def is_convertible_to_integer(a):
     """
@@ -473,7 +486,7 @@ def draw_res_cell(can, width, height, x, y, state, can_width=CAN_WIDTH, can_heig
 ##################
 
 def setup_window(default_width=20, default_height=20, default_path="", default_gen=2, default_save=1, default_saveres=0, 
-                 default_savehtml=0, default_graphic=1, default_graphicres=1, default_graphicdynamic=1, default_speed="Normal"):
+                 default_savehtml=0, default_graphic=3, default_speed="Normal"):
     """
     Opens a window for the user to input parameters and then returns those parameters
 
@@ -487,11 +500,16 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     :param default_save: (int) [default=1] 1 if the program saves in a text file, 0 otherwise
     :param default_saveres: (int) [default=0] 1 if the resolution is saved too, 0 otherwise
     :param default_savehtml: (int) [default=0] 1 if the program saves in an html file, 0 otherwise
-    :param default_graphic: (int) [default=1] 1 if the program displays the maze in a window, 0 otherwise
-    :param default_graphicres: (int) [default=1] 1 if in addition the program displays the resolution, 0 otherwise
-    :param default_graphicdynamic: (int) [default=1] 1 if the program displays the resolution dynamicaly, 0 otherwise
+    :param default_graphic: (int) [default=3] The default graphical display option:
+            * 0 : Do not display the maze
+            * 1 : Display the maze
+            * 2 : Display the maze and its resolution
+            * 3 : Display the maze and its resolution dynamicaly
+            * 4 : Display the maze textually
+            * 5 : Display the maze textually with the resolution
     :param default_speed: (str) [default="Normal] The speed of the resolution
     :side effect: Opens a Tkinter window on which the user has to input the parameters of the program
+
     :return: The function returns 10 values in a tuple listed below:
         - (int) The width of the maze
         - (int) The height of the maze
@@ -503,9 +521,13 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
         - (int) 1 if the user wants to save in a text file, 0 otherwise
         - (int) 1 if the user wants the resolution to be saved too, 0 otherwise
         - (int) 1 if the user wants the maze to be saved into a html file, 0 otherwise
-        - (int) 1 if the user wants the maze to be displayed graphically, 0 otherwise
-        - (int) 1 if the user wants to see the resolution to be displayed, 0 otherwise
-        - (int) 1 if the user wants the resolution to be displayed dynamically, 0 otherwise
+        - (int) The display option:
+            * 0 : Do not display the maze
+            * 1 : Display the maze
+            * 2 : Display the maze and its resolution
+            * 3 : Display the maze and its resolution dynamicaly
+            * 4 : Display the maze textually
+            * 5 : Display the maze textually with the resolution
         - (str) The speed at which the resolution is displayed(key in SPEED_VALUES)
     :UC: None
     """
@@ -529,8 +551,8 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck = save_var
 
     # Graphic setup
-    graphic_var = setup_wingraphic(winset, default_graphic, default_graphicres, default_graphicdynamic, default_speed)
-    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox = graphic_var
+    graphic_var = setup_wingraphic(winset, default_graphic, default_speed)
+    graphicLabel, varGraph, notgraphicCheck, textCheck, textresCheck, graphicresCheck, dynamicCheck, graphicCheck, speedLabel, varSpeed, speedSpinbox = graphic_var
 
     okButton["command"] = partial(exit_setup, winset, width, height, varGen, g_filename)
 
@@ -558,18 +580,21 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     fileEntry.grid(row=22, column=1)
     fileButton.grid(row=22, column=2)
 
-    graphicLabel.grid(row = 30, column = 0, pady=(10, 0))
-    graphicCheck.grid(row = 31, column = 0)
-    graphicresCheck.grid(row = 32, column = 0 )
-    dynamicCheck.grid(row = 33, column = 0)
-    speedLabel.grid(row=34, column=0)
-    speedSpinbox.grid(row=34, column=1)
+    graphicLabel.grid(row = 25, column = 0, pady=(10, 0))
+    notgraphicCheck.grid(row = 26, column = 0)
+    textCheck.grid(row = 27, column = 0)
+    textresCheck.grid(row = 28, column = 0)
+    graphicCheck.grid(row = 32, column = 0)
+    graphicresCheck.grid(row = 33, column = 0 )
+    dynamicCheck.grid(row = 34, column = 0)
+    speedLabel.grid(row=35, column=0)
+    speedSpinbox.grid(row=35, column=1)
 
     winset.mainloop()
 
     return (int(width.get()), int(height.get()), g_filename.get(), varGen.get(), 
             is_save.get(), is_saveres.get(), is_savehtml.get(),
-            is_graphic.get(), is_graphicres.get(), is_dynamic.get(), varSpeed.get())
+            varGraph.get(), varSpeed.get())
 
 def parse_gen(width, height, filepath, varGen):
     """
@@ -631,19 +656,22 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     if is_savehtml:
         maze.picture_representation(SAVE_PATH+"maze_html.html")
 
-def graph_disp(maze, is_graphicres, is_dynamic, speed, setup_var):
+def graph_disp(maze, varGraph, speed, setup_var):
     """
     Displays a `maze` on a Tkinter window and eventually its solution (dynamicaly or not)
 
     :param maze: (Maze)
-    :param is_graphicres: (bool) if set to True, the resolution will be displayed
-    :param is_dynamic: (bool)  if set to True (and is_graphicres is True) the resolution will be displayed in a dynamic way
+    :param varGraph: (int) the display option, can be:
+            * 1 : Display the maze on a window
+            * 2 : Display the maze and its resolution
+            * 3 : Display the maze and its resolution dynamicaly
     :param speed: (str) a key of the dictionnary SPEED_VALUES
     :param setup_var: (tuple) see `setup_window` for the default values
     :side effect: Displays a graph on a window
     :return: None
-    :UC: None
+    :UC: varGraph in {1, 2, 3}
     """
+    assert varGraph in {1, 2, 3}
     global is_disp_res  # True if the resolution is currently displayed, False otherwise
     width = maze.get_width()
     height = maze.get_height()
@@ -657,27 +685,55 @@ def graph_disp(maze, is_graphicres, is_dynamic, speed, setup_var):
     draw_grid(can, width, height, can_width=adj_can_width, can_height=adj_can_height) 
     setup_wall(can, maze, can_width=adj_can_width, can_height=adj_can_height)
     setup_buttons(win, setup_var)
-    if is_graphicres:
+
+    if varGraph in {2, 3}:
         trace = maze.resolution_path(trace=True)
+        
+        # Display the resolution in one go
+        if varGraph == 2:
+            for (x, y), state in trace:
+                draw_res_cell(can, width, height, x, y, state, adj_can_width, adj_can_height)
+
         # Display all the resolution progressively
-        if is_dynamic:
+        else: 
             speed_val = SPEED_VALUES[speed]
             for (x, y), state in trace:
                 draw_res_cell(can, width, height, x, y, state, adj_can_width, adj_can_height)
                 win.update()
                 time.sleep(speed_val)
-        # Display the resolution in one go
-        else: 
-            for (x, y), state in trace:
-                draw_res_cell(can, width, height, x, y, state, adj_can_width, adj_can_height)
+
         # Draw the finish cell
         set_circle(can, width, height, width-1, height-1, can_width=adj_can_width, can_height= adj_can_height)
         is_disp_res = True
+
+        
+
 
     toggleresButton = Button(win, text="Toggle Resolution",
                             command=partial(toggle_graphic_res, can, maze, adj_can_width, adj_can_height))
     toggleresButton.pack(side="left")
     win.mainloop()
+
+def text_disp(maze, varGraph):
+    """
+    Displays the maze textually
+
+    :param maze: (Maze)
+    :param varGraph: (int) the display option, can be:
+            * 4 : Display the maze textually
+            * 5 : Display the maze textually with the resolution
+    :side effect: Prints the maze on the console
+    :return: None
+    :UC: varGraph in {4,5}
+    """
+    assert varGraph in {4,5}
+    if varGraph == 4:
+        print(maze)
+    else:
+        maze.resolution_path()
+        print(maze)
+        
+
 
 def main(old_var=()):
     """
@@ -695,18 +751,21 @@ def main(old_var=()):
     """
     # We get all the setup variable from the user using a GUI
     setup_var = setup_window(*old_var)
-    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_graphic, is_graphicres, is_dynamic, speed = setup_var
+    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, varGraph, speed = setup_var
     # We generate the maze
     maze = parse_gen(width, height, filepath, varGen)
     # If we must, we save it in files
     parse_save(maze, is_save, is_saveres, is_savehtml)
 
-    # Displays the maze
-    if is_graphic:
-        graph_disp(maze, is_graphicres, is_dynamic, speed, setup_var)
+    # Displays the maze on a window
+    if varGraph in {1, 2, 3}:
+        graph_disp(maze, varGraph, speed, setup_var)
+    # Displays the maze textually
+    elif varGraph in {4, 5}:
+        text_disp(maze, varGraph)
 
     
 if __name__ == '__main__':
     main()
     import doctest
-    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=True)
+    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=False)
