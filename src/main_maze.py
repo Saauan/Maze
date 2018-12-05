@@ -162,11 +162,18 @@ def toggleonoff(elemon, elemoff):
 
 def setup_winentries(winset, default_width, default_height, default_path):
     """
-    Returns the entries items used for the setup_window
+    Returns the entries Widget sused for the setup_window.
+    These includes:
+        * Entries and Labels for the width and height
+        * Entry, label and button for the file's path
 
-    :param: (Tk) a window
-    :return:
-    TODO
+    :param winset: (Tk) a window
+    :param default_width: (int) The default width for the maze
+    :param default_height: (int) The default height for the maze
+    :param default_path: (str) The default path for the file
+    :return: (Label, Label, StringVar, StringVar, Entry, Entry, Label, str, Entry, Button)
+    width Label, height Label, width , height, width Entry, height Entry, fileLabel, the file's path, file Entry, the browse button
+    :UC: None
     """
     # Maze's width
     widthLabel = Label(winset, text="Width of the maze (integer)")
@@ -192,11 +199,24 @@ def setup_winentries(winset, default_width, default_height, default_path):
 
 def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default_gen):
     """
-    Returns the generation items used for the setup_window
+    Returns the generation Widgets used for the setup_window, includes:
+        Three radio buttons for the generation
+        The label for the generation
+        The generation Variable
 
-    :param: (Tk) a window
-    :return:
-    TODO
+
+    :param winset: (Tk) a window
+    :param widthEntry: (Entry) The Entry for the width
+    :param heightEntry: (Entry) the Entry for the height
+    :param fileEntry: (Entry) the Entry for the file's path
+    :param fileButton: (Button) the Button for browsing files
+    :param default_gen: (int) The default generation:
+            * 0 : Hand generation
+            * 1 : Generate from a text file
+            * 2 : Generate randomly
+    :return: (Label, IntVar, Radiobutton, Radiobutton, Radiobutton)
+    The label, the generation variable, the handgen check, the textgen check, the randomgen check
+    :UC: default_gen must be either 0, 1 or 2
     """
     genLabel = Label(winset, text="Generation Options (Chose only one)")
     varGen = IntVar()
@@ -204,7 +224,7 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default
 
     # When handgen or randomgen is selected, the width and height entries will be activated, and the file entry and button are disabled
     # When texgen is selected, the reverse operation is done
-    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation [WIP]", command=partial(toggleonoff, (widthEntry, heightEntry), (fileEntry, fileButton)))
+    handgenCheck = Radiobutton(winset, variable=varGen, value=0, text="Hand generation", command=partial(toggleonoff, (widthEntry, heightEntry), (fileEntry, fileButton)))
     textgenCheck = Radiobutton(winset, variable=varGen, value=1, text="Generate from text file", command=partial(toggleonoff, (fileEntry, fileButton), (widthEntry, heightEntry)))
     randomgenCheck = Radiobutton(winset, variable=varGen, value=2, text="Generate randomly", command=partial(toggleonoff, (widthEntry, heightEntry), (fileEntry, fileButton)))
 
@@ -212,11 +232,15 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default
 
 def setup_winsave(winset, default_save, default_saveres, default_savehtml):
     """
-    Returns the save items used for the setup_window
+    Returns the save widget used for the setup_window
 
     :param: (Tk) a window
-    :return:
-    TODO
+    :param default_save: (int) 1 if the program saves the maze, 0 otherwise
+    :param default_saveres: (int) 1 if the program saves the resolution, 0 otherwise
+    :param default_savehtml: (int) 1 if the program saves the maze in an html file, 0 otherwise
+    :return: (Label, IntVar, Checkbutton, IntVar, Checkbutton, IntVar, Checkbutton)
+    The save label, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
+    :UC: None
     """
     saveLabel = Label(winset, text="Save Options")
 
@@ -239,8 +263,13 @@ def setup_wingraphic(winset, default_graphic, default_graphicres, default_graphi
     Returns the graphic items used for the setup_window
 
     :param: (Tk) a window
-    :return:
-    TODO
+    :param default_graphic: (int) 1 if the maze is displayed
+    :param default_graphicres: (int) 1 if the maze is displayed with the resolution
+    :param default_graphicdynamic: (int) 1 if the maze is displayed with a dynamic resolution (graphicres must be 1)
+    :param default_speed: (str) the speed of the dynamic resolution
+    :return: (Label, IntVar, Checkbutton, IntVar, Checkbutton, IntVar, Checkbutton, Label, StringVar, Spinbox)
+    graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox
+    :UC: default_speed must be in SPEED_VALUES.keys()
     """
     graphicLabel = Label(winset, text="Graphic Options")
 
@@ -319,7 +348,6 @@ def exit_setup(winset, width, height, varGen, g_filename):
         warningOkButton.grid()
 
     # Everything's okay, we can close the setup window
-    # TODO CHECK IF THE FILE IS ALSO A VALID MAZE or, open a window saying there was an error
     else:
         winset.destroy()
         
@@ -397,7 +425,7 @@ def toggle_graphic_res(can, maze, can_width, can_height):
         set_circle(can, width, height, width-1, height-1, can_width=can_width, can_height=can_height)
         is_disp_res = True
 
-    # Note: Will draw/erase over same cell a maximum of 2 times TODO
+    # Note: Will draw/erase over same cell a maximum of 2 times
 
 def setup_buttons(win, setup_var):
     """
@@ -449,7 +477,20 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     """
     Opens a window for the user to input parameters and then returns those parameters
 
-    :param: the default values of the setup_window (see the return section)
+    :param default_width: (int) [default=20] The default_width of the maze
+    :param default_height: (int) [default=20] The default height of the maze
+    :param default_path: (str) [default=""] The default path for the file from which the maze is generated
+    :param default_gen: (int) [default=2] The default generation option:
+            * 0 : Hand generation
+            * 1 : Generate from a text file
+            * 2 : Generate randomly
+    :param default_save: (int) [default=1] 1 if the program saves in a text file, 0 otherwise
+    :param default_saveres: (int) [default=0] 1 if the resolution is saved too, 0 otherwise
+    :param default_savehtml: (int) [default=0] 1 if the program saves in an html file, 0 otherwise
+    :param default_graphic: (int) [default=1] 1 if the program displays the maze in a window, 0 otherwise
+    :param default_graphicres: (int) [default=1] 1 if in addition the program displays the resolution, 0 otherwise
+    :param default_graphicdynamic: (int) [default=1] 1 if the program displays the resolution dynamicaly, 0 otherwise
+    :param default_speed: (str) [default="Normal] The speed of the resolution
     :side effect: Opens a Tkinter window on which the user has to input the parameters of the program
     :return: The function returns 10 values in a tuple listed below:
         - (int) The width of the maze
@@ -465,6 +506,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
         - (int) 1 if the user wants the maze to be displayed graphically, 0 otherwise
         - (int) 1 if the user wants to see the resolution to be displayed, 0 otherwise
         - (int) 1 if the user wants the resolution to be displayed dynamically, 0 otherwise
+        - (str) The speed at which the resolution is displayed(key in SPEED_VALUES)
     :UC: None
     """
     # Setup of the window
@@ -491,7 +533,6 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     graphicLabel, is_graphicres, graphicresCheck, is_dynamic, dynamicCheck, is_graphic, graphicCheck, speedLabel, varSpeed, speedSpinbox = graphic_var
 
     okButton["command"] = partial(exit_setup, winset, width, height, varGen, g_filename)
-    # okButton["command"] = winset.destroy DEBUG
 
     # Placement
     title.grid(row = 0, column = 0, padx=10) # Places the label in the grid
@@ -566,8 +607,7 @@ def parse_gen(width, height, filepath, varGen):
         maze = Maze().random_generation(width, height)
     # Generate by hand
     else:
-        # maze = Maze.hand_generation() #TODO
-        pass
+        maze = Maze.hand_generation(width, height)
     return maze
 
 def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
@@ -586,7 +626,7 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     if is_save:
         maze.text_representation(SAVE_PATH+"maze.txt")
     if is_saveres:
-        # maze.text_representation(SAVE_PATH+"maze_res.txt", res=True) TODO
+        maze.text_representation(SAVE_PATH+"maze_res.txt", disp_res = True)
         pass
     if is_savehtml:
         maze.picture_representation(SAVE_PATH+"maze_html.html")
@@ -610,9 +650,8 @@ def graph_disp(maze, is_graphicres, is_dynamic, speed, setup_var):
 
     adj_can_width, adj_can_height = adjust_dimensions(width, height) # We adjust the dimension
 
-    #TODO Adjust the window according the the main screen
     win = Tk() # Creates a window object
-    # win.title(random_word('../ressources/anagrams.txt'))
+    win.title(random_word('../ressources/anagrams.txt'))
     can = create_canvas(win, adj_can_width, adj_can_height)
 
     draw_grid(can, width, height, can_width=adj_can_width, can_height=adj_can_height) 
