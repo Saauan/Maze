@@ -20,7 +20,7 @@ Class :class:`CreationError`
 Class to manage maze
 
 Class :class:`Maze`
-------------------------------   
+-------------------  
 
 .. autoclass:: maze.Maze
 
