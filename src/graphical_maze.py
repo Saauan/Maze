@@ -30,6 +30,9 @@ RECTANGLE_SCALE = 0.8
 
 
 def draw_circle(canvas, event):
+    """
+    Draws a circle of ray 5 at the location of `event` on the `canvas`
+    """
     ray = 5
     x, y = event.x, event.y
     canvas.create_oval(x - ray, y - ray,
@@ -38,6 +41,11 @@ def draw_circle(canvas, event):
     canvas.update()
     
 def draw_grid(canvas, width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
+    """
+    Draws a grid on the `canvas`. The dimensions of the grid are `width` and `height`.
+    The dimensions of the canvas are `can_width` and `can_height` and are by default
+    `CAN_WIDTH` and `CAN_HEIGHT`
+    """
     DX = can_width // width # Width of a square
     DY = can_height // height
     for y in range(height):
@@ -72,6 +80,10 @@ def remove_wall(canvas, x, y, side, width, height, can_width=CAN_WIDTH, can_heig
     :param canvas: (Canvas)
     :param x, y: (int) the coordinates of the cell
     :side: (str) the side we want to remove, must be "Left" or "Top"
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param can_width: (int) the width of the canvas
+    :param can_height: (int) the height of the canvas
     :side-effect: removes a line from the canvas
     :return: None
     :UC: 0<=x<=width-1, 0<=y<=height-1
@@ -89,9 +101,11 @@ def setup_wall(canvas, maze, can_width=CAN_WIDTH, can_height=CAN_HEIGHT):
 
     :param canvas: (Canvas)
     :param maze: (Maze)
-    :side effect: removes lines from the window
+    :param can_width: (int) the width of the canvas
+    :param can_height: (int) the height of the canvas
+    :side effect: removes lines from the canvas
     :return: None
-    :UC: the maze must be the same dimensions as the canvas
+    :UC: None
     """
     height = maze.get_height()
     width = maze.get_width()
@@ -109,9 +123,15 @@ def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_
 
     :param canvas: (Canvas)
     :param x,y: (int) the coordinates of the cell
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param can_width: (int) the width of the canvas
+    :param can_height: (int) the height of the canvas
+    :param fill_color: (str) [default = GOOD_CELL_COLOR] the color of the circle
+    :param scale: (int) [default = CIRCLE_SCALE] the scale of the circle
     :side-effect: draws a circle
     :return: None
-    :UC: 0<=x<=width-1, 0<=y<=height-1
+    :UC: 0<=x<=width-1, 0<=y<=height-1 0<= scale <= 1
     """
     DX = can_width // width 
     DY = can_height // height 
@@ -123,20 +143,36 @@ def set_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_
 def remove_circle(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BG_COLOR, scale=CIRCLE_SCALE):
     """
     Removes a circle of the canvas by making its color the same as the background's
+
+    :param canvas: (Canvas)
+    :param x,y: (int) the coordinates of the cell
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param can_width: (int) the width of the canvas
+    :param can_height: (int) the height of the canvas
+    :param fill_color: (str) [default = BG_COLOR] the color of the circle
+    :param scale: (int) [default = CIRCLE_SCALE] the scale of the circle
+    :side-effect: erase a circle
+    :return: None
+    :UC: 0<=x<=width-1, 0<=y<=height-1  0<= scale <= 1
     """
     set_circle(canvas, width, height, x, y, can_width=can_width, can_height=can_height, fill_color=fill_color, scale=scale)
     
 def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BAD_CELL_COLOR, scale=RECTANGLE_SCALE):
     """
-    TODO: change the name of the function
-
-    Sets the cell as a cell which doesn't lead to the exit
+    Draws a cell as a cell which doesn't lead to the exit
 
     :param canvas: (Canvas)
     :param x,y: (int) the coordinates of the cell
-    :side-effect: Does something on the cell
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param can_width: (int) the width of the canvas
+    :param can_height: (int) the height of the canvas
+    :param fill_color: (str) [default = BAD_CELL_COLOR] the color of the cell
+    :param scale: (int) [default = RECTANGLE_SCALE] the scale of the square
+    :side-effect: Draws a square on the cell
     :return: None
-    :UC: 0<=x<=width-1, 0<=y<=height-1
+    :UC: 0<=x<=width-1, 0<=y<=height-1 0<= scale <= 1
     """
     scale = scale/2 + 0.5
     DX = can_width // width # This is the width of a square
@@ -146,10 +182,30 @@ def set_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CA
                             fill = fill_color)
 
 def remove_bad_cell(canvas, width, height, x, y, can_width=CAN_WIDTH, can_height=CAN_HEIGHT, fill_color=BG_COLOR, scale=RECTANGLE_SCALE):
+    """
+    Erase a cell as a cell which doesn't lead to the exit
+
+    :param canvas: (Canvas)
+    :param x,y: (int) the coordinates of the cell
+    :param width: (int) the width of the maze
+    :param height: (int) the height of the maze
+    :param can_width: (int) the width of the canvas
+    :param can_height: (int) the height of the canvas
+    :param fill_color: (str) [default = BG_COLOR] the color of the cell
+    :param scale: (int) [default = RECTANGLE_SCALE] the scale of the square
+    :side-effect: Draws a square on the cell
+    :return: None
+    :UC: 0<=x<=width-1, 0<=y<=height-1 0<= scale <= 1
+    """
     set_bad_cell(canvas, width, height, x, y, can_width=can_width, can_height=can_height, fill_color=fill_color, scale=scale)
 
 def create_canvas(win, adjusted_can_width, adjusted_can_height):
     """
+    Creates and returns a canvas with a scrolling bar
+
+    :param win: (Window) A tkinter window parent to the canvas
+    :param adjusted_can_width: (int) the width of the canvas
+    :param adjusted_can_height: (int) the height of the canvas
     """
     can = Canvas(win, bg=BG_COLOR, width=adjusted_can_width, height=adjusted_can_height)
     can.bind('<Button-1>',

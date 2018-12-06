@@ -98,13 +98,13 @@ class Maze():
 
     def __init__(self, width=10, height=8, x0 = 0, y0 = 0):
         """
-        Build a maze grid of size `width`*`height` cells.
+        Build a maze grid of size `width` * `height` cells.
 
         :param width: (int) [optional] - horizontal size (int) of the maze (default = 10)
         :param height: (int) [optional] - vertical size (int) of the maze (default = 8)
         :param x0: (int) [optional] - the x-coordinate of the starting point (default = 0)
         :param y0: (int) [optional] - the y-coordinate of the starting point (default = 0)
-        :return: (Maze) - an empty grid of `width`*`height` Squares
+        :return: (Maze) - an empty grid of `width` * `height` Squares
         :UC: `width` and `height` must be positive integers
         :Examples:
         
@@ -159,12 +159,17 @@ class Maze():
         :param y: (int) - y-coordinate of a square
         :return: (Square) - the square of coordinates (x,y) in the game's grid
         :UC: 0 <= `x` < self.get_width() and 0 <= `y` < self.get_height() of the maze and `x` and `y` have to be positive integers
+        :Example:
+
+        >>> M = Maze(5,5)
+        >>> square = M.get_square(1,2)
+        >>> square.get_ramparts()
+        {'Left': True, 'Top': True, 'Right': True, 'Bottom': True}
         """
         assert 0 <= x < self.get_width() and 0 <= y < self.get_height(), "Your coordinates are out of the maze's boundaries."
         assert type(x) == int and type(y) == int, 'The x-coordinate & the y-coordinate of your square have to be positive integers'
         return self.maze[x][y]
-    
-                          
+                  
     def __str__(self):
         """
         Gives a textual representation of `self` by printing it.
@@ -200,7 +205,7 @@ class Maze():
         """
         Create a list of possible neighbours for `square` in `self`. Used for random_generation.
         
-        :param self (Maze) - a fresh new maze
+        :param self: (Maze) - a fresh new maze
         :param square: (Square) - a square in the maze self
         :return: (list(tuple(str, Square))) - list of possible neighbours for `square`
         :UC: None
@@ -227,6 +232,11 @@ class Maze():
         :return: None
         :effect: Change the values of some walls of self
         :UC: `width` and `height` must be positive integers
+        :Example:
+        
+        >>> maze = Maze().random_generation(5,5)
+        >>> maze.get_width() == 5 and maze.get_height() == 5
+        True
         """
         assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
         maze = Maze(width, height)
@@ -244,7 +254,6 @@ class Maze():
             actualSquare = followingSquare # Our initial position is now the neighbour chosen before
             checkedSquares += 1 # We increment the number of checked squares
         return maze
-
 
     @staticmethod
     def hand_generation(width, height):
@@ -298,8 +307,7 @@ class Maze():
             maze.resolution_path()
         with open(path+filename, "w", encoding=ENCODING) as mazeModel :
             mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
-
-                
+      
     def picture_representation(self, path, filename, style_path=STYLE_PATH):
 
         """
@@ -404,7 +412,6 @@ class Maze():
             return self.__resolution_trace
         return self.__resolution
         
-
     @staticmethod
     def build_maze_from_text(filename):
         """
