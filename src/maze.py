@@ -68,7 +68,7 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
     stream.write('    <meta name="author" content="TAYEBI Ajwad, COIGNION Tristan, BECQUEMBOIS Logan" />\n')
     stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n')
     stream.write('    <style>\n')
-    stream.write('      * { background-color : rgb(24,24,24) ; }')
+    stream.write('      * { background-color : rgb(24,24,24) ; }\n')
     stream.write('    </style>\n')
     stream.write('  </head>\n\n')
     stream.write('  <body>\n')
