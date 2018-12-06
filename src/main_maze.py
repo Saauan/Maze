@@ -387,11 +387,27 @@ def adjust_dimensions(width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT,
     :return: (tuple of two floats) the adjusted dimensions
     :UC: ratio != 0
     """
-    H = 650 
-    W = int(H * (width / height))
-    p = 20
-    adj_can_width = W+2*p
-    adj_can_height = H+2*p
+    if width >= 40 and height <= 35:
+        resolution = 1050
+    elif width >= 40 and height > 35:
+        resolution = 900
+    elif width < 40 and height > 35:
+        resolution = 900
+    else: 
+        resolution = 900
+    
+    scaleX = 1
+    scaleY = 1
+
+    if width/height < 1:
+        scaleX = width/height
+    if height/width < 1:
+        scaleY = height/width
+    
+    dimx = width * resolution//width * scaleX
+    dimy = height * resolution//height * scaleY
+    adj_can_width = dimx - resolution * scaleX % width
+    adj_can_height = dimy - resolution * scaleY % height
     return adj_can_width, adj_can_height
 
 def restart(win, setup_var):
