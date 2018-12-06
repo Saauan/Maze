@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = "List"
+project = "Maze"
 copyright = "2016, Tristan Coignion, Ajwad Tayebi, Logan Becquembois, Univ. Lille1"
 author = "Tristan Coignion, Ajwad Tayebi, Logan Becquembois"
 

@@ -282,7 +282,7 @@ class Maze():
 
     def text_representation(self, path, filename, disp_res = False):
         """
-        Create a new text file, named `filename`, containing the maze `self`s informations.
+        Create a new text file, named `filename`, containing the maze `self` 's informations.
         
         :param self: (Maze) - a maze
         :param filename: (str) - the name of the file which will contain the maze self

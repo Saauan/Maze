@@ -164,15 +164,16 @@ def setup_winentries(winset, default_width, default_height, default_path):
     """
     Returns the entries Widget sused for the setup_window.
     These includes:
-        * Entries and Labels for the width and height
-        * Entry, label and button for the file's path
+
+    * Entries and Labels for the width and height
+    * Entry, label and button for the file's path
 
     :param winset: (Tk) a window
     :param default_width: (int) The default width for the maze
     :param default_height: (int) The default height for the maze
     :param default_path: (str) The default path for the file
-    :return: (Label, Label, StringVar, StringVar, Entry, Entry, Label, str, Entry, Button)
-    width Label, height Label, width , height, width Entry, height Entry, fileLabel, the file's path, file Entry, the browse button
+    :return: (Label, Label, StringVar, StringVar, Entry, Entry, Label, str, Entry, Button) 
+        width Label, height Label, width , height, width Entry, height Entry, fileLabel, the file's path, file Entry, the browse button
     :UC: None
     """
     # Maze's width
@@ -210,12 +211,14 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default
     :param heightEntry: (Entry) the Entry for the height
     :param fileEntry: (Entry) the Entry for the file's path
     :param fileButton: (Button) the Button for browsing files
-    :param default_gen: (int) The default generation:
-            * 0 : Hand generation
-            * 1 : Generate from a text file
-            * 2 : Generate randomly
+    :param default_gen: (int) The default generation, can be:
+
+        * 0 : Hand generation
+        * 1 : Generate from a text file
+        * 2 : Generate randomly
+
     :return: (Label, IntVar, Radiobutton, Radiobutton, Radiobutton)
-    The label, the generation variable, the handgen check, the textgen check, the randomgen check
+        The label, the generation variable, the handgen check, the textgen check, the randomgen check
     :UC: default_gen must be either 0, 1 or 2
     """
     genLabel = Label(winset, text="Generation Options (Chose only one)")
@@ -239,7 +242,7 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
     :param default_saveres: (int) 1 if the program saves the resolution, 0 otherwise
     :param default_savehtml: (int) 1 if the program saves the maze in an html file, 0 otherwise
     :return: (Label, IntVar, Checkbutton, IntVar, Checkbutton, IntVar, Checkbutton)
-    The save label, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
+        The save label, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
     :UC: None
     """
     saveLabel = Label(winset, text="Save Options")
@@ -264,15 +267,17 @@ def setup_wingraphic(winset, default_graphic, default_speed):
 
     :param: (Tk) a window
     :param default_graphic: (int) the default graphic display option:
-            * 0 : Do not display the maze
-            * 1 : Display the maze
-            * 2 : Display the maze and its resolution
-            * 3 : Display the maze and its resolution dynamicaly
-            * 4 : Display the maze textually
-            * 5 : Display the maze textually with the resolution
+
+        * 0 : Do not display the maze
+        * 1 : Display the maze
+        * 2 : Display the maze and its resolution
+        * 3 : Display the maze and its resolution dynamicaly
+        * 4 : Display the maze textually
+        * 5 : Display the maze textually with the resolution
+
     :param default_speed: (str) the speed of the dynamic resolution
     :return: (Label, IntVar, CheckButton, Checkbutton, Checkbutton, Checkbutton, Label, StringVar, Spinbox)
-    graphicLabel, varGraph, notgraphicCheck, graphicresCheck, dynamicCheck, graphicCheck, speedLabel, varSpeed, speedSpinbox
+        graphicLabel, varGraph, notgraphicCheck, graphicresCheck, dynamicCheck, graphicCheck, speedLabel, varSpeed, speedSpinbox
     :UC: default_speed must be in SPEED_VALUES.keys()
     """
     graphicLabel = Label(winset, text="Graphic Options")
@@ -312,6 +317,7 @@ def is_convertible_to_integer(a):
     Checks if a (any type) can be converted to an integer, if it can, returns True, otherwise, False
 
     :Examples:
+
     >>> is_convertible_to_integer("10")
     True
     >>> is_convertible_to_integer([10])
@@ -494,41 +500,51 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     :param default_height: (int) [default=20] The default height of the maze
     :param default_path: (str) [default=""] The default path for the file from which the maze is generated
     :param default_gen: (int) [default=2] The default generation option:
-            * 0 : Hand generation
-            * 1 : Generate from a text file
-            * 2 : Generate randomly
+            
+        * 0 : Hand generation
+        * 1 : Generate from a text file
+        * 2 : Generate randomly
+
     :param default_save: (int) [default=1] 1 if the program saves in a text file, 0 otherwise
     :param default_saveres: (int) [default=0] 1 if the resolution is saved too, 0 otherwise
     :param default_savehtml: (int) [default=0] 1 if the program saves in an html file, 0 otherwise
     :param default_graphic: (int) [default=3] The default graphical display option:
-            * 0 : Do not display the maze
-            * 1 : Display the maze
-            * 2 : Display the maze and its resolution
-            * 3 : Display the maze and its resolution dynamicaly
-            * 4 : Display the maze textually
-            * 5 : Display the maze textually with the resolution
+           
+        * 0 : Do not display the maze
+        * 1 : Display the maze
+        * 2 : Display the maze and its resolution
+        * 3 : Display the maze and its resolution dynamicaly
+        * 4 : Display the maze textually
+        * 5 : Display the maze textually with the resolution
+
     :param default_speed: (str) [default="Normal] The speed of the resolution
     :side effect: Opens a Tkinter window on which the user has to input the parameters of the program
 
     :return: The function returns 10 values in a tuple listed below:
+
         - (int) The width of the maze
         - (int) The height of the maze
         - (str) The path of the text file from which we can build a maze
-        - (int) The generation the user has chosen
+        - (int) The generation the user has chosen, can be :
+
             * 0 : Hand generation
             * 1 : Generate from a text file
             * 2 : Generate randomly
+
         - (int) 1 if the user wants to save in a text file, 0 otherwise
         - (int) 1 if the user wants the resolution to be saved too, 0 otherwise
         - (int) 1 if the user wants the maze to be saved into a html file, 0 otherwise
-        - (int) The display option:
+        - (int) The display option, can be:
+
             * 0 : Do not display the maze
             * 1 : Display the maze
             * 2 : Display the maze and its resolution
             * 3 : Display the maze and its resolution dynamicaly
             * 4 : Display the maze textually
             * 5 : Display the maze textually with the resolution
+
         - (str) The speed at which the resolution is displayed(key in SPEED_VALUES)
+
     :UC: None
     """
     # Setup of the window
@@ -743,6 +759,7 @@ def main(old_var=()):
     """
     Main function of main_maze.py.
     Will in this order:
+    
         * Display a setup window
         * Generate a maze according to the setup parameters
         * May save it into different files (depends on the parameters)
