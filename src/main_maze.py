@@ -381,11 +381,11 @@ def adjust_dimensions(width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT,
     :return: (tuple of two floats) the adjusted dimensions
     :UC: ratio != 0
     """
-    adj_can_width = can_width//ratio*width
-    adj_can_height = can_height//ratio*height
-    if adj_can_width > 1600 or adj_can_height > 900: # Prevents the canvas to be too big
-        adj_can_width = can_width
-        adj_can_height = can_height
+    H = 650 
+    W = int(H * (width / height))
+    p = 20
+    adj_can_width = W+2*p
+    adj_can_height = H+2*p
     return adj_can_width, adj_can_height
 
 def restart(win, setup_var):
@@ -619,6 +619,7 @@ def parse_gen(width, height, filepath, varGen):
     """
     # Generate from a text file
     if varGen == 1:
+        print("Build from text") # DEBUG
         maze = Maze().build_maze_from_text(filepath)
     else:
         try:
@@ -631,7 +632,7 @@ def parse_gen(width, height, filepath, varGen):
     if varGen == 2:
         maze = Maze().random_generation(width, height)
     # Generate by hand
-    else:
+    elif varGen == 0:
         maze = Maze.hand_generation(width, height)
     return maze
 
