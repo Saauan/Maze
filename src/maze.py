@@ -36,6 +36,7 @@ from copy import deepcopy
 import colors
 import stack
 from random import choice
+import os.path
 
 ENCODING = "UTF-8"
 COLORS = [ C for C in colors.COLORS.keys() if "dark" not in C if "grey" not in C if "black" not in C if "gray" not in C if C is not "midnightblue"]
@@ -279,7 +280,7 @@ class Maze():
                 print(maze)
         return maze
 
-    def text_representation(self, filename, disp_res = False):
+    def text_representation(self, path, filename, disp_res = False):
         """
         Create a new text file, named `filename`, containing the maze `self`s informations.
         
@@ -289,16 +290,17 @@ class Maze():
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :UC: the maze self has to be already generated.
         """
+        if not os.path.isdir(path): # Creates a directory if it does not already exists
+            os.mkdir(path)
+
         maze = deepcopy(self) # We make a copy, then the initial variable maze self won't be changed
-        if disp_res == False: # It means that the resolution_path has to be hidden in the text_representation
-            with open(filename, "w", encoding=ENCODING) as mazeModel :
-                mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
-        elif disp_res == True: # It means that the resolution_path has to be shown in the text_representation
+        if disp_res == True: # It means that the resolution_path has to be shown in the text_representation
             maze.resolution_path()
-            with open(filename, "w", encoding=ENCODING) as mazeModel :
-                mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
+        with open(path+filename, "w", encoding=ENCODING) as mazeModel :
+            mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
+
                 
-    def picture_representation(self, filename, style_path=STYLE_PATH):
+    def picture_representation(self, path, filename, style_path=STYLE_PATH):
 
         """
         Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
@@ -310,10 +312,12 @@ class Maze():
         :effect: Create a new HTML file in the folder containing the SVG representation of the maze
         :UC: the maze self has to be already generated
         """
+        if not os.path.isdir(path): # Creates a directory if it does not already exists
+            os.mkdir(path)
         H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
-        with open(filename, 'w', encoding=ENCODING) as output:
+        with open(path+filename, 'w', encoding=ENCODING) as output:
             _pict_rep_html_header(output, W, H, p, style_path)
             
             #First of all, we draw all the top ramparts of the first line and the left ramparts of the first column

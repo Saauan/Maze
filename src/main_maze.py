@@ -250,7 +250,7 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
 
     # Save resolution in file
     is_saveres = IntVar(winset, default_saveres)
-    saveresCheck = Checkbutton(winset, variable= is_saveres, text="Save into a file with the resolution [WIP]")
+    saveresCheck = Checkbutton(winset, variable= is_saveres, text="Save into a file with the resolution")
 
     # Save in HTML file
     is_savehtml = IntVar(winset, default_savehtml)
@@ -648,14 +648,15 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     :return: None
     :UC: None
     """
+    meta = "_{:d}_{:d}".format(maze.get_width(), maze.get_height())
     if is_save:
-        maze.text_representation(save_path+"maze.txt")
+        maze.text_representation(save_path, "maze" + meta + ".txt")
         print("maze saved to {:s}maze.txt".format(save_path))
     if is_saveres:
-        maze.text_representation(save_path+"maze_res.txt", disp_res = True)
+        maze.text_representation(save_path, "maze" + meta + "_res.txt", disp_res = True)
         print("maze saved to {:s}maze_res.txt".format(save_path))
     if is_savehtml:
-        maze.picture_representation(save_path+"maze_html.html")
+        maze.picture_representation(save_path, "maze" + meta + "_html.html")
         print("maze saved to {:s}maze_html.html".format(save_path))
 
 def graph_disp(maze, varGraph, speed, setup_var):
