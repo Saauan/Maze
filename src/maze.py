@@ -38,7 +38,7 @@ import stack
 from random import choice
 
 ENCODING = "UTF-8"
-COLORS = [ C for C in colors.COLORS.keys() if "dark" not in C if "grey" not in C if "black" not in C if "gray" not in C if C is not "midnightblue"]
+COLORS = [C for C in colors.COLORS.keys() if "dark" not in C if "grey" not in C if "black" not in C if "gray" not in C if C is not "midnightblue"]
 
 class CreationError(Exception):
     """
@@ -66,10 +66,10 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
     stream.write('    <title> Votre Labyrinthe </title>\n')
     stream.write('    <link rel="icon" href="{:s}maze.ico"/>\n'.format(style_path))
     stream.write('    <meta name="author" content="TAYEBI Ajwad, COIGNION Tristan, BECQUEMBOIS Logan" />\n')
-    stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n')
+    stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n\n')
     stream.write('    <style>\n')
     stream.write('      * { background-color : rgb(24,24,24) ; }\n')
-    stream.write('    </style>\n')
+    stream.write('    </style>\n\n')
     stream.write('  </head>\n\n')
     stream.write('  <body>\n')
     stream.write('    <svg xmlns="http://www.w3.org/2000/svg"\n')
@@ -324,9 +324,9 @@ class Maze():
             for X in range(self.get_width()):
                 for Y in range(self.get_height()):
                     if self.get_square(X,Y).has_bottom_rampart(): 
-                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
+                        output.write('      <line x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                     if self.get_square(X,Y).has_right_rampart():
-                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
+                        output.write('      <line x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                         
             _pict_rep_html_footer(output)     
     
