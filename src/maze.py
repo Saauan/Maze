@@ -33,10 +33,13 @@ and methods
 
 from square import Square
 from copy import deepcopy
+import colors
 import stack
-import random
+from random import choice
+import os.path
 
 ENCODING = "UTF-8"
+COLORS = [C for C in colors.COLORS.keys() if "dark" not in C if "grey" not in C if "black" not in C if "gray" not in C if C is not "midnightblue"]
 
 class CreationError(Exception):
     """
@@ -62,10 +65,12 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
     stream.write('  <head>\n')
     stream.write('    <meta charset="UTF-8" />\n')
     stream.write('    <title> Votre Labyrinthe </title>\n')
-    stream.write('    <link rel="stylesheet" type="text/css" href="{:s}maze.css"/>\n'.format(style_path))
-    stream.write('    <link rel="icon" href="{:s}pictures/maze.ico"/>\n'.format(style_path))
+    stream.write('    <link rel="icon" href="{:s}maze.ico"/>\n'.format(style_path))
     stream.write('    <meta name="author" content="TAYEBI Ajwad, COIGNION Tristan, BECQUEMBOIS Logan" />\n')
-    stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n')
+    stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n\n')
+    stream.write('    <style>\n')
+    stream.write('      * { background-color : rgb(24,24,24) ; }\n')
+    stream.write('    </style>\n\n')
     stream.write('  </head>\n\n')
     stream.write('  <body>\n')
     stream.write('    <svg xmlns="http://www.w3.org/2000/svg"\n')
@@ -89,7 +94,7 @@ class Maze():
     """
     """
 
-    STYLE_PATH = "../ressources/styles/"
+    STYLE_PATH = "../ressources/"
 
     def __init__(self, width=10, height=8, x0 = 0, y0 = 0):
         """
@@ -233,7 +238,7 @@ class Maze():
             if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
                 actualSquare = memoryPath.pop()
                 continue
-            side, followingSquare = random.choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
+            side, followingSquare = choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
             actualSquare.rampart_deletion(followingSquare, side) # We take down the rampart between our initial position and the chosen neighbour
             memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
             actualSquare = followingSquare # Our initial position is now the neighbour chosen before
@@ -275,7 +280,7 @@ class Maze():
                 print(maze)
         return maze
 
-    def text_representation(self, filename, disp_res = False):
+    def text_representation(self, path, filename, disp_res = False):
         """
         Create a new text file, named `filename`, containing the maze `self`s informations.
         
@@ -285,16 +290,17 @@ class Maze():
         :effect: Create a new text file in the folder containing the width, the height and the maze schematic.
         :UC: the maze self has to be already generated.
         """
+        if not os.path.isdir(path): # Creates a directory if it does not already exists
+            os.mkdir(path)
+
         maze = deepcopy(self) # We make a copy, then the initial variable maze self won't be changed
-        if disp_res == False: # It means that the resolution_path has to be hidden in the text_representation
-            with open(filename, "w", encoding=ENCODING) as mazeModel :
-                mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
-        elif disp_res == True: # It means that the resolution_path has to be shown in the text_representation
+        if disp_res == True: # It means that the resolution_path has to be shown in the text_representation
             maze.resolution_path()
-            with open(filename, "w", encoding=ENCODING) as mazeModel :
-                mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
+        with open(path+filename, "w", encoding=ENCODING) as mazeModel :
+            mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
+
                 
-    def picture_representation(self, filename, style_path=STYLE_PATH):
+    def picture_representation(self, path, filename, style_path=STYLE_PATH):
 
         """
         Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
@@ -306,23 +312,25 @@ class Maze():
         :effect: Create a new HTML file in the folder containing the SVG representation of the maze
         :UC: the maze self has to be already generated
         """
+        if not os.path.isdir(path): # Creates a directory if it does not already exists
+            os.mkdir(path)
         H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
-        with open(filename, 'w', encoding=ENCODING) as output:
+        with open(path+filename, 'w', encoding=ENCODING) as output:
             _pict_rep_html_header(output, W, H, p, style_path)
             
             #First of all, we draw all the top ramparts of the first line and the left ramparts of the first column
-            output.write('      <line x1="0" y1="0" x2="{}" y2="0"/>\n'.format(W))
-            output.write('      <line x1="0" y1="0" x2="0" y2="{}"/>\n'.format(H))
+            output.write('      <line x1="0" y1="0" x2="{}" y2="0" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(W, choice(COLORS)))
+            output.write('      <line x1="0" y1="0" x2="0" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(H, choice(COLORS)))
             
             #Then, square by square, we check if they have a bottom or/and a right rampart, if they do, we draw it/them
             for X in range(self.get_width()):
                 for Y in range(self.get_height()):
                     if self.get_square(X,Y).has_bottom_rampart(): 
-                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY))
+                        output.write('      <line x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                     if self.get_square(X,Y).has_right_rampart():
-                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY))
+                        output.write('      <line x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                         
             _pict_rep_html_footer(output)     
     

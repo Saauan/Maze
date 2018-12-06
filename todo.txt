@@ -1,4 +1,0 @@
-# Note: Will draw/erase over same cell a maximum of 2 times TODO
-#TODO Adjust the window according the the main screen
-#TODO CHECK IF THE FILE IS ALSO A VALID MAZE or, open a window saying there was an error
-#TODO When restarting, disable or activate the widget
