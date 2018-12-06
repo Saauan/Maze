@@ -252,7 +252,7 @@ class Maze():
         
         :param width: (int) - the width of your maze
         :param height: (int) - the height of your maze
-        :return: None
+        :return: a maze
         :effect: Launch a series of input to change the walls' values
         :UC: `width` and `height` must be positive integers
         """
@@ -262,22 +262,22 @@ class Maze():
         for linesSquares in maze.maze :
             for sqr in linesSquares:
                 
-                R = input("Enter the walls for the square at the position  {0}  like this :\nLeftOne, TopOne, RightOne, BottomOne. \n".format(sqr.get_coordinates()))
+                R = input("Enter if there are walls for the square at the position  {0}  like this :\nLeft, Top, Right, Bottom. (To specify if there is a wall or no, use 'True' and 'False' or 'y' and 'n' ) \n".format(sqr.get_coordinates()))
                 R = [r.strip() for r in R.split(',') if r != ''] 
                 for boo in range(len(R)):
-                    if R[boo] == 'True':
+                    if R[boo] == 'True' or R[boo] == "y":
                         R[boo] = True              # After the input's processing, R will contain the values of the 4 ramparts of the square
-                    elif R[boo] == 'False':
+                    elif R[boo] == 'False' or R[boo] == "n":
                         R[boo] = False 
                     else:
-                        print("You entered a wrong value for the wall. Please do it again.") 
+                        print("You entered a wrong value for the wall. Please do it again. You must enter 'True' or 'False' or 'y' or 'n' for each wall") 
                         return # If the user entered something else, he has to start the process again
                 for i,k in enumerate(sqr.get_ramparts()):
                     sqr.square_modification(k, R[i])     # Apply the square's modifications
                 
                 print("\n")
                 print(maze)
-
+        return maze
 
     def text_representation(self, filename, disp_res = False):
         """
@@ -299,6 +299,7 @@ class Maze():
                 mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
                 
     def picture_representation(self, filename, style_path=STYLE_PATH):
+
         """
         Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
         
