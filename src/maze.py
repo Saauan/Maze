@@ -33,10 +33,12 @@ and methods
 
 from square import Square
 from copy import deepcopy
+import colors
 import stack
-import random
+from random import choice
 
 ENCODING = "UTF-8"
+COLORS = [ C for C in colors.COLORS.keys() if "dark" not in C if "grey" not in C if "black" not in C if "gray" not in C if C is not "midnightblue"]
 
 class CreationError(Exception):
     """
@@ -62,10 +64,12 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
     stream.write('  <head>\n')
     stream.write('    <meta charset="UTF-8" />\n')
     stream.write('    <title> Votre Labyrinthe </title>\n')
-    stream.write('    <link rel="stylesheet" type="text/css" href="{:s}maze.css"/>\n'.format(style_path))
-    stream.write('    <link rel="icon" href="{:s}pictures/maze.ico"/>\n'.format(style_path))
+    stream.write('    <link rel="icon" href="{:s}maze.ico"/>\n'.format(style_path))
     stream.write('    <meta name="author" content="TAYEBI Ajwad, COIGNION Tristan, BECQUEMBOIS Logan" />\n')
     stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n')
+    stream.write('    <style>\n')
+    stream.write('      * { background-color : rgb(24,24,24) ; }')
+    stream.write('    </style>\n')
     stream.write('  </head>\n\n')
     stream.write('  <body>\n')
     stream.write('    <svg xmlns="http://www.w3.org/2000/svg"\n')
@@ -89,7 +93,7 @@ class Maze():
     """
     """
 
-    STYLE_PATH = "../ressources/styles/"
+    STYLE_PATH = "../ressources/"
 
     def __init__(self, width=10, height=8, x0 = 0, y0 = 0):
         """
@@ -233,7 +237,7 @@ class Maze():
             if not NEIGHBOURS : # Which means no neighbours have been found, so we hit a dead end and we return in the previous square
                 actualSquare = memoryPath.pop()
                 continue
-            side, followingSquare = random.choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
+            side, followingSquare = choice(NEIGHBOURS) # We go randomly in one direction depending on the possible NEIGHBOURS
             actualSquare.rampart_deletion(followingSquare, side) # We take down the rampart between our initial position and the chosen neighbour
             memoryPath.push(actualSquare) # We save our initial position in case we encounter a dead end
             actualSquare = followingSquare # Our initial position is now the neighbour chosen before
@@ -312,16 +316,16 @@ class Maze():
             _pict_rep_html_header(output, W, H, p, style_path)
             
             #First of all, we draw all the top ramparts of the first line and the left ramparts of the first column
-            output.write('      <line x1="0" y1="0" x2="{}" y2="0"/>\n'.format(W))
-            output.write('      <line x1="0" y1="0" x2="0" y2="{}"/>\n'.format(H))
+            output.write('      <line x1="0" y1="0" x2="{}" y2="0" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(W, choice(COLORS)))
+            output.write('      <line x1="0" y1="0" x2="0" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(H, choice(COLORS)))
             
             #Then, square by square, we check if they have a bottom or/and a right rampart, if they do, we draw it/them
             for X in range(self.get_width()):
                 for Y in range(self.get_height()):
                     if self.get_square(X,Y).has_bottom_rampart(): 
-                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY))
+                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                     if self.get_square(X,Y).has_right_rampart():
-                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY))
+                        output.write('      <line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                         
             _pict_rep_html_footer(output)     
     
