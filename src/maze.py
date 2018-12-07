@@ -39,7 +39,10 @@ from random import choice
 import os.path
 
 ENCODING = "UTF-8"
-COLORS = [C for C in colors.COLORS.keys() if "dark" not in C if "grey" not in C if "black" not in C if "gray" not in C if C is not "midnightblue"]
+COLORS = [C for C in colors.COLORS.keys()
+                    if "dark" not in C if "grey" not in C
+                    if "black" not in C if "gray" not in C
+                    if C not in {"midnightblue", "blue", "navy", "mediumblue"}]
 
 class CreationError(Exception):
     """
@@ -48,7 +51,7 @@ class CreationError(Exception):
     def __init__(self, msg):
         self.__message = msg
 
-def _pict_rep_html_header(stream, W, H, p, style_path):
+def _pict_rep_html_header(stream, W, H, p):
     """
     Writes the header of the HTML file. Only used in picture_representation.
         
@@ -56,7 +59,6 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
     :param W: (int) - the width of the svg's maze
     :param H: (int) - the height of the svg's maze
     :param p: (int) - the padding of the svg's maze
-    :param style_path: (str) - the path to the css of the svg's maze
     :return: None
     :effect: Writes the header lines of the HTML file.
     :UC: None
@@ -65,7 +67,7 @@ def _pict_rep_html_header(stream, W, H, p, style_path):
     stream.write('  <head>\n')
     stream.write('    <meta charset="UTF-8" />\n')
     stream.write('    <title> Votre Labyrinthe </title>\n')
-    stream.write('    <link rel="icon" href="{:s}maze.ico"/>\n'.format(style_path))
+    stream.write('    <link rel="icon" href="../images/maze.ico"/>\n')
     stream.write('    <meta name="author" content="TAYEBI Ajwad, COIGNION Tristan, BECQUEMBOIS Logan" />\n')
     stream.write('    <meta name="keywords" content="HTML, CSS, SVG" />\n\n')
     stream.write('    <style>\n')
@@ -92,10 +94,19 @@ def _pict_rep_html_footer(stream):
 
 class Maze():
     """
+    Class used for Maze's creation.
+
+    >>> Maze = Maze(20,15)
+    >>> Maze.get_width()
+    20
+    >>> Maze.get_height()
+    15
+    >>> [neigh[0] for neigh in Maze.neighbourhood(Maze.get_square(8,9))]
+    ['Top', 'Left', 'Right', 'Bottom']
+    >>> Maze.text_representation("textfile_name")
+    >>> Maze.picture_representation("pictural_name")
     """
-
-    STYLE_PATH = "../ressources/"
-
+    
     def __init__(self, width=10, height=8, x0 = 0, y0 = 0):
         """
         Build a maze grid of size `width` * `height` cells.
@@ -209,6 +220,13 @@ class Maze():
         :param square: (Square) - a square in the maze self
         :return: (list(tuple(str, Square))) - list of possible neighbours for `square`
         :UC: None
+        :Examples:
+        
+        >>> M = Maze().build_maze_from_text("../ressources/doctest_blank_maze.txt")
+        >>> M.get_height()
+        10
+        >>> [neigh[0] for neigh in M.neighbourhood(M.get_square(8,9))]
+        ['Top', 'Left', 'Right']
         """
         potential_neighbours = [('Top', (0,-1)),
                                 ('Left', (-1,0)),('Right', (1,0)),
@@ -234,9 +252,11 @@ class Maze():
         :UC: `width` and `height` must be positive integers
         :Example:
         
-        >>> maze = Maze().random_generation(5,5)
-        >>> maze.get_width() == 5 and maze.get_height() == 5
-        True
+        >>> M = Maze().build_maze_from_text("../ressources/doctest_random_maze.txt")
+        >>> M.get_width(), M.get_height()
+        (10, 10)
+        >>> M.neighbourhood(M.get_square(8,9))
+        []
         """
         assert type(width) == int and type(height) == int and width>0 and height>0, 'The width & the height of your maze have to be positive integers'
         maze = Maze(width, height)
@@ -289,7 +309,7 @@ class Maze():
                 print(maze)
         return maze
 
-    def text_representation(self, path, filename, disp_res = False):
+    def text_representation(self, filename, path="../mazes/", disp_res = False):
         """
         Create a new text file, named `filename`, containing the maze `self` 's informations.
         
@@ -305,17 +325,15 @@ class Maze():
         maze = deepcopy(self) # We make a copy, then the initial variable maze self won't be changed
         if disp_res == True: # It means that the resolution_path has to be shown in the text_representation
             maze.resolution_path()
-        with open(path+filename, "w", encoding=ENCODING) as mazeModel :
+        with open("{:s}{:s}.txt".format(path, filename), "w", encoding=ENCODING) as mazeModel :
             mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
       
-    def picture_representation(self, path, filename, style_path=STYLE_PATH):
-
+    def picture_representation(self, filename, path="../mazes/"):
         """
         Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
         
         :param self: (Maze) - the Maze to represent in an HTML file
-        :param fichier: (str) - the name of the file you want to get your picture representation
-        :param style_path: (str) [optional] - the path to the directory of the styles sheets (default = "../ressources/styles/")
+        :param filename: (str) - the name of the file you want to get your picture representation
         :return: None
         :effect: Create a new HTML file in the folder containing the SVG representation of the maze
         :UC: the maze self has to be already generated
@@ -325,13 +343,21 @@ class Maze():
         H = 650 ; W = int(H * (self.get_width() / self.get_height())) ; p = 20 # Size of the Maze in pixels & the padding (used later)
         # To draw the maze's lines, we consider the following scales :
         sX = H / self.get_height() ; sY = W / self.get_width()
-        with open(path+filename, 'w', encoding=ENCODING) as output:
-            _pict_rep_html_header(output, W, H, p, style_path)
+        with open("{:s}{:s}.html".format(path, filename), 'w', encoding=ENCODING) as output:
+            _pict_rep_html_header(output, W, H, p)
             
             #First of all, we draw all the top ramparts of the first line and the left ramparts of the first column
-            output.write('      <line x1="0" y1="0" x2="{}" y2="0" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(W, choice(COLORS)))
-            output.write('      <line x1="0" y1="0" x2="0" y2="{}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(H, choice(COLORS)))
+            x1, x2, y1, y2 = 0, sY, 0, sX
             
+            for Y in range(self.get_height()): #The First Column
+                output.write('      <line x1="0" y1="{:.2f}" x2="0" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(y1, y2, choice(COLORS)))
+                y1 = y2 ; y2 += sX
+                
+            x1, x2 = 0, sY
+            for X in range(self.get_width()): #The First Line
+                output.write('      <line x1="{:.2f}" y1="0" x2="{:.2f}" y2="0" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(x1, x2, choice(COLORS)))
+                x1 = x2 ; x2 += sY
+                
             #Then, square by square, we check if they have a bottom or/and a right rampart, if they do, we draw it/them
             for X in range(self.get_width()):
                 for Y in range(self.get_height()):
@@ -351,6 +377,13 @@ class Maze():
         :param square: (Square) - a square in the maze self
         :return: (list(tuple(str, Square))) - list of possible neighbours for the square
         :UC: self has to be already generated
+        :Examples:
+        
+        >>> M = Maze().build_maze_from_text("../ressources/doctest_random_maze.txt")
+        >>> M.get_height(), M.get_width()
+        (10, 10)
+        >>> [neigh[0] for neigh in M.resolution_neighbours(M.get_square(7,2))]
+        ['Right', 'Left']
         """
         potential_neighbours = [('Bottom', (0,1)), ('Right', (1,0)), ('Top', (0,-1)), ('Left', (-1,0))]
         neighbours = []
@@ -425,6 +458,14 @@ class Maze():
         :param filename: (str) - a valid name of a text file
         :return: (Maze) - A maze built from the text file
         :UC: None
+        :Examples:
+        
+        >>> M1 = Maze().build_maze_from_text("../ressources/doctest_blank_maze.txt")
+        >>> M2 = Maze().build_maze_from_text("../ressources/doctest_random_maze.txt")
+        >>> M1.get_width(), M1.get_height()
+        (15, 10)
+        >>> M2.get_width(), M2.get_height()
+        (10, 10)
         """
         with open(filename, "r", encoding=ENCODING) as instream:
             lines = []

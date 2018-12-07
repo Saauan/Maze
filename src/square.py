@@ -31,6 +31,33 @@ and methods
 """
     
 class Square():
+    """
+    Class used for a Maze's Square's creation.
+    
+    >>> Square = Square(0,3)
+    >>> Square.get_coordinates()
+    (0, 3)
+    >>> Square.is_surrounded()
+    True
+    >>> Square.square_modification("Left", False)
+    >>> Square.square_modification("Bottom", False)
+    >>> Square.has_left_rampart(), Square.has_right_rampart()
+    (False, True)
+    >>> Square.has_top_rampart(), Square.has_bottom_rampart()
+    (True, False)
+    >>> Square.is_surrounded()
+    False
+    >>> Square.get_state()
+    'blank'
+    >>> Square.state_modification("crossed")
+    >>> Square.get_state()
+    'crossed'
+    >>> Square.state_modification("wrong")
+    >>> Square.get_state()
+    'wrong'
+    >>> Square.get_ramparts()
+    {'Left': False, 'Top': True, 'Right': True, 'Bottom': False}
+    """
     
     OPPOSITES = {'Left':'Right',
                  'Right':'Left',

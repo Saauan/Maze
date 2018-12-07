@@ -689,7 +689,7 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
         maze.text_representation(save_path, "maze" + meta + "_res.txt", disp_res = True)
         print("maze saved to {:s}maze_res.txt".format(save_path))
     if is_savehtml:
-        maze.picture_representation(save_path, "maze" + meta + "_html.html")
+        maze.picture_representation("maze{:s}_html".format(meta), save_path)
         print("maze saved to {:s}maze_html.html".format(save_path))
 
 def graph_disp(maze, varGraph, speed, setup_var):
