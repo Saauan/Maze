@@ -103,8 +103,6 @@ class Maze():
     15
     >>> [neigh[0] for neigh in Maze.neighbourhood(Maze.get_square(8,9))]
     ['Top', 'Left', 'Right', 'Bottom']
-    >>> Maze.text_representation("textfile_name")
-    >>> Maze.picture_representation("pictural_name")
     """
     
     def __init__(self, width=10, height=8, x0 = 0, y0 = 0):
