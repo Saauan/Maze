@@ -40,9 +40,9 @@ import os.path
 
 ENCODING = "UTF-8"
 COLORS = [C for C in colors.COLORS.keys()
-                    if "dark" not in C if "grey" not in C
-                    if "black" not in C if "gray" not in C
-                    if C not in {"midnightblue", "blue", "navy", "mediumblue"}]
+         if "dark" not in C if "grey" not in C
+         if "black" not in C if "gray" not in C
+         if C not in {"midnightblue", "blue", "navy", "mediumblue"}]
 
 class CreationError(Exception):
     """
