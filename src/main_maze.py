@@ -683,11 +683,11 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     """
     meta = "_{:d}_{:d}".format(maze.get_width(), maze.get_height())
     if is_save:
-        maze.text_representation(save_path, "maze" + meta + ".txt")
-        print("maze saved to {:s}maze.txt".format(save_path))
+        maze.text_representation("maze{:s}_txt".format(meta), save_path)
+        print("maze saved to {:s}maze_txt.txt".format(save_path))
     if is_saveres:
-        maze.text_representation(save_path, "maze" + meta + "_res.txt", disp_res = True)
-        print("maze saved to {:s}maze_res.txt".format(save_path))
+        maze.text_representation("maze{:s}_txt_res".format(meta), save_path, disp_res = True)
+        print("maze saved to {:s}maze_txt_res.txt".format(save_path))
     if is_savehtml:
         maze.picture_representation("maze{:s}_html".format(meta), save_path)
         print("maze saved to {:s}maze_html.html".format(save_path))
