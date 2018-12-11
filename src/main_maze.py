@@ -233,7 +233,7 @@ def setup_wingen(winset, widthEntry, heightEntry, fileEntry, fileButton, default
 
     return genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck
 
-def setup_winsave(winset, default_save, default_saveres, default_savehtml):
+def setup_winsave(winset, default_save, default_saveres, default_savehtml,default_savehtmlres):
     """
     Returns the save widget used for the setup_window
 
@@ -241,6 +241,7 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
     :param default_save: (int) 1 if the program saves the maze, 0 otherwise
     :param default_saveres: (int) 1 if the program saves the resolution, 0 otherwise
     :param default_savehtml: (int) 1 if the program saves the maze in an html file, 0 otherwise
+    :param default_savehtmlres: (int) 1 if the program saves the maze and its resolution in an html file, 0 otherwise
     :return: (Label, IntVar, Checkbutton, IntVar, Checkbutton, IntVar, Checkbutton)
         The save label, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
     :UC: None
@@ -259,7 +260,12 @@ def setup_winsave(winset, default_save, default_saveres, default_savehtml):
     is_savehtml = IntVar(winset, default_savehtml)
     savehtmlCheck = Checkbutton(winset, variable= is_savehtml, text="Save into a html file")
 
-    return saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck
+    # Save in HTML file with resolution
+    is_savehtmlres = IntVar(winset, default_savehtmlres)
+    savehtmlresCheck = Checkbutton(winset, variable= is_savehtmlres, text="Save into a html file with the resolution")
+
+
+    return saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck, is_savehtmlres, savehtmlresCheck
 
 def setup_wingraphic(winset, default_graphic, default_speed):
     """
@@ -510,7 +516,7 @@ def draw_res_cell(can, width, height, x, y, state, can_width=CAN_WIDTH, can_heig
 ##################
 
 def setup_window(default_width=20, default_height=20, default_path="", default_gen=2, default_save=1, default_saveres=0, 
-                 default_savehtml=0, default_graphic=3, default_speed="Normal"):
+                 default_savehtml=0, default_savehtmlres=0 ,default_graphic=3, default_speed="Normal"):
     """
     Opens a window for the user to input parameters and then returns those parameters
 
@@ -526,6 +532,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     :param default_save: (int) [default=1] 1 if the program saves in a text file, 0 otherwise
     :param default_saveres: (int) [default=0] 1 if the resolution is saved too, 0 otherwise
     :param default_savehtml: (int) [default=0] 1 if the program saves in an html file, 0 otherwise
+    :param default_savehtmlres: (int) 1 if the program saves the maze in an html file with the resolution, 0 otherwise
     :param default_graphic: (int) [default=3] The default graphical display option:
            
         * 0 : Do not display the maze
@@ -552,6 +559,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
         - (int) 1 if the user wants to save in a text file, 0 otherwise
         - (int) 1 if the user wants the resolution to be saved too, 0 otherwise
         - (int) 1 if the user wants the maze to be saved into a html file, 0 otherwise
+        - (int) 1 if the user wants the maze to be saved into a html file with the resolution, 0 otherwise
         - (int) The display option, can be:
 
             * 0 : Do not display the maze
@@ -581,8 +589,8 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     genLabel, varGen, handgenCheck, textgenCheck, randomgenCheck = gen_var
 
     # Save setup
-    save_var = setup_winsave(winset, default_save, default_saveres, default_savehtml)
-    saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck = save_var
+    save_var = setup_winsave(winset, default_save, default_saveres, default_savehtml,default_savehtmlres)
+    saveLabel, is_save, saveCheck, is_saveres, saveresCheck, is_savehtml, savehtmlCheck, is_savehtmlres, savehtmlresCheck = save_var
 
     # Graphic setup
     graphic_var = setup_wingraphic(winset, default_graphic, default_speed)
@@ -604,6 +612,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     saveCheck.grid(row = 11, column = 1)
     saveresCheck.grid(row = 12, column = 1)
     savehtmlCheck.grid(row = 13, column = 1)
+    savehtmlresCheck.grid(row = 14 , column = 1)
 
     widthLabel.grid(row=20, column=0, pady=(10, 0))
     widthEntry.grid(row=20, column=1, pady=(10, 0))
@@ -627,7 +636,7 @@ def setup_window(default_width=20, default_height=20, default_path="", default_g
     winset.mainloop()
 
     return (int(width.get()), int(height.get()), g_filename.get(), varGen.get(), 
-            is_save.get(), is_saveres.get(), is_savehtml.get(),
+            is_save.get(), is_saveres.get(), is_savehtml.get(), is_savehtmlres.get(),
             varGraph.get(), varSpeed.get())
 
 def parse_gen(width, height, filepath, varGen):
@@ -674,14 +683,15 @@ def parse_gen(width, height, filepath, varGen):
             return
     return maze
 
-def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
+def parse_save(maze, is_save, is_saveres, is_savehtml, is_savehtmlres, save_path=SAVE_PATH):
     """
     Saves the maze into different files depending on the arguments of the function
 
     :param maze: (Maze)
     :param is_save: (bool) if True, the maze will be saved as is in a text file
     :param is_saveres: (bool) if True, the maze and its resolution will be saved in a text file
-    :param is_savehtml: (bool) if True, the maze and its resolution will be saved in an html file
+    :param is_savehtml: (bool) if True, the maze will be saved in an html file
+    :param is_savehtmlres: (bool)  if True, the maze and its resolution will be saved in an html file
     :param save_path: (str) [default SAVE_PATH] the path to the directory where the maze will be saved
     :side effect: save
     :return: None
@@ -700,6 +710,9 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     if is_savehtml:
         maze.picture_representation("maze{:s}_html".format(meta), save_path)
         print("maze saved to {:s}maze{:s}_html.html".format(save_path, meta))
+    if is_savehtmlres:
+        maze.picture_representation("maze{:s}_html_res".format(meta), save_path, True)
+        print("maze saved to {:s}maze{:s}_html_res.html".format(save_path, meta))
 
 def graph_disp(maze, varGraph, speed, setup_var):
     """
@@ -801,11 +814,11 @@ def main(old_var=()):
     """
     # We get all the setup variable from the user using a GUI
     setup_var = setup_window(*old_var)
-    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, varGraph, speed = setup_var
+    width, height, filepath, varGen, is_save, is_saveres, is_savehtml, is_savehtmlres, varGraph, speed = setup_var
     # We generate the maze
     maze = parse_gen(width, height, filepath, varGen)
     # If we must, we save it in files
-    parse_save(maze, is_save, is_saveres, is_savehtml)
+    parse_save(maze, is_save, is_saveres, is_savehtml, is_savehtmlres)
 
     # Displays the maze on a window
     if varGraph in {1, 2, 3}:
