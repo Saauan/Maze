@@ -273,6 +273,8 @@ class Maze():
             checkedSquares += 1 # We increment the number of checked squares
         return maze
 
+
+
     @staticmethod
     def hand_generation(width, height):
         """
@@ -326,7 +328,7 @@ class Maze():
         with open("{:s}{:s}.txt".format(path, filename), "w", encoding=ENCODING) as mazeModel :
             mazeModel.write("{:d}\n{:d}\n{:s}".format(maze.get_width(), maze.get_height(), maze.__str__()))
       
-    def picture_representation(self, filename, path="../mazes/"):
+    def picture_representation(self, filename, path="../mazes/", DAG = False):
         """
         Write an HTML file, named `fichier`, containing a SVG representation of the maze `self`.
         
@@ -363,6 +365,46 @@ class Maze():
                         output.write('      <line x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format(X*sX, (Y+1)*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
                     if self.get_square(X,Y).has_right_rampart():
                         output.write('      <line x1="{:.2f}" y1="{:.2f}" x2="{:.2f}" y2="{:.2f}" style="stroke : {:s} ; stroke-linecap : round ; stroke-width : 2.25"/>\n'.format((X+1)*sX, Y*sY, (X+1)*sX, (Y+1)*sY, choice(COLORS)))
+                        
+                        
+                        
+                if DAG == True:
+                    
+                    if sX < 11:
+                        radS, radC = 3, 1.5
+                    elif 11 <= sX < 22:
+                        radS, radC = 5, 3
+                    elif 22 <= sX < 55 :
+                        radS, radC = 8, 5
+                    elif sX >= 55 :
+                        radS, radC = 13, 7
+                    
+                    
+                    maze = self
+                    trace = maze.resolution_path(True)
+                    xC1, xC2 = 0, 0.5*sY
+                    for X in range(self.get_width()):
+                        
+                        xC1 = xC2 ; xC2 += sY
+                        yC1, yC2 = 0, 0.5*sX
+                        
+                        for Y in range(self.get_height()):
+                            yC1 = yC2 ; yC2 += sX
+                            
+                            if maze.get_square(X,Y).get_coordinates() == (0,0):
+                                output.write('      <circle cx="{:.2f}" cy="{:.2f}" r="{:d}" fill="#12CBC4" stroke="rgba(240,240,240,0.8)" stroke-width="1"/>\n'.format(xC1, yC1, radS))
+                            
+                            if maze.get_square(X,Y).get_state() == "crossed":
+                                output.write('      <circle cx="{:.2f}" cy="{:.2f}" r="{:d}" fill="lawngreen" stroke="slategrey" stroke-width="0.5"/>\n'.format(xC1, yC1, radC))
+                            
+                            
+                            elif maze.get_square(X,Y).get_state() == "wrong":
+                                output.write('      <circle cx="{:.2f}" cy="{:.2f}" r="{:d}" fill="midnightblue" stroke="grey" stroke-width="1"/>\n'.format(xC1, yC1, radC))
+
+                            
+                            elif maze.get_square(X,Y).get_state() == "finish":
+                                output.write('      <circle cx="{:.2f}" cy="{:.2f}" r="{:d}" fill="#12CBC4" stroke="rgba(240,240,240,0.8)" stroke-width="1"/>\n'.format(xC1, yC1, radS))
+                     
                         
             _pict_rep_html_footer(output)     
     

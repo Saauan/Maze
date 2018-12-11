@@ -388,11 +388,13 @@ def adjust_dimensions(width, height, can_width=CAN_WIDTH, can_height=CAN_HEIGHT,
     :UC: ratio != 0
     """
     if width >= 40 and height <= 35:
-        resolution = 1050
+        resolution = 900
     elif width >= 40 and height > 35:
-        resolution = 900
+        resolution = 750
     elif width < 40 and height > 35:
-        resolution = 900
+        resolution = 750
+    elif width < 40 and height < 40:
+        resolution = 750
     else: 
         resolution = 900
     
@@ -665,7 +667,11 @@ def parse_gen(width, height, filepath, varGen):
         maze = Maze().random_generation(width, height)
     # Generate by hand
     elif varGen == 0:
-        maze = Maze.hand_generation(width, height)
+        try:
+            maze = Maze.hand_generation(width, height)
+        except IndexError:
+            print("Erreur : Une erreur s'est produite lors de l'entrée des paramètres, veuillez recommencer.")
+            return
     return maze
 
 def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
@@ -681,16 +687,19 @@ def parse_save(maze, is_save, is_saveres, is_savehtml, save_path=SAVE_PATH):
     :return: None
     :UC: None
     """
-    meta = "_{:d}_{:d}".format(maze.get_width(), maze.get_height())
+    try:
+        meta = "_{:d}_{:d}".format(maze.get_width(), maze.get_height())
+    except AttributeError:
+        return
     if is_save:
         maze.text_representation("maze{:s}_txt".format(meta), save_path)
-        print("maze saved to {:s}maze_txt.txt".format(save_path))
+        print("maze saved to {:s}maze{:s}_txt.txt".format(save_path, meta))
     if is_saveres:
         maze.text_representation("maze{:s}_txt_res".format(meta), save_path, disp_res = True)
-        print("maze saved to {:s}maze_txt_res.txt".format(save_path))
+        print("maze saved to {:s}maze{:s}_txt_res.txt".format(save_path, meta))
     if is_savehtml:
         maze.picture_representation("maze{:s}_html".format(meta), save_path)
-        print("maze saved to {:s}maze_html.html".format(save_path))
+        print("maze saved to {:s}maze{:s}_html.html".format(save_path, meta))
 
 def graph_disp(maze, varGraph, speed, setup_var):
     """
@@ -723,7 +732,11 @@ def graph_disp(maze, varGraph, speed, setup_var):
     setup_buttons(win, setup_var)
 
     if varGraph in {2, 3}:
-        trace = maze.resolution_path(trace=True)
+        try:
+            trace = maze.resolution_path(trace=True)
+        except stack.StackEmptyError:
+            print("Erreur : Il n'y a pas de chemin possible entre le point de départ et d'arrivée.")
+            return
         
         # Display the resolution in one go
         if varGraph == 2:
